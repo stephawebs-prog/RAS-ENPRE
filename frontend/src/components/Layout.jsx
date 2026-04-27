@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
-import { Mail, Phone, Facebook, Instagram, Twitter, Globe, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
+import { Mail, Phone, Facebook, Instagram, MessageCircle, Globe, Menu, X, LogOut, LayoutDashboard } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
 
@@ -29,8 +29,8 @@ const TopBar = () => {
           <a href="mailto:info@lovesolidarity.com" className="hidden md:inline-flex items-center gap-2 hover:text-orange transition-colors">
             <Mail size={14} /> info@lovesolidarity.com
           </a>
-          <a href="tel:+14236435345" className="hidden md:inline-flex items-center gap-2 hover:text-orange transition-colors">
-            <Phone size={14} /> (423) 643-5345
+          <a href="tel:+14322584444" className="hidden md:inline-flex items-center gap-2 hover:text-orange transition-colors">
+            <Phone size={14} /> +1 (432) 258-4444
           </a>
           <button
             onClick={toggle}
@@ -39,10 +39,10 @@ const TopBar = () => {
           >
             <Globe size={12} /> {lang === "es" ? "EN" : "ES"}
           </button>
-          <div className="hidden md:flex items-center gap-2 text-white/70">
-            <a href="#" aria-label="Facebook" className="hover:text-orange"><Facebook size={14} /></a>
-            <a href="#" aria-label="Instagram" className="hover:text-orange"><Instagram size={14} /></a>
-            <a href="#" aria-label="Twitter" className="hover:text-orange"><Twitter size={14} /></a>
+          <div className="flex items-center gap-2">
+            <a href="https://www.facebook.com/profile.php?id=61585047449986" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-orange"><Facebook size={14} /></a>
+            <a href="https://www.instagram.com/love_andsolidarity/" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-orange"><Instagram size={14} /></a>
+            <a href="https://wa.me/14322584444" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-orange"><MessageCircle size={14} /></a>
           </div>
         </div>
       </div>
@@ -141,18 +141,16 @@ export const Footer = () => {
             {t.footer.tag}
           </p>
           <div className="flex items-center gap-3 mt-5 text-white/70">
-            <a href="#" aria-label="Facebook" className="hover:text-orange"><Facebook size={18} /></a>
-            <a href="#" aria-label="Instagram" className="hover:text-orange"><Instagram size={18} /></a>
-            <a href="#" aria-label="Twitter" className="hover:text-orange"><Twitter size={18} /></a>
+            <a href="https://www.facebook.com/profile.php?id=61585047449986" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-orange"><Facebook size={18} /></a>
+            <a href="https://www.instagram.com/love_andsolidarity/" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-orange"><Instagram size={18} /></a>
+            <a href="https://wa.me/14322584444" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-orange"><MessageCircle size={18} /></a>
           </div>
         </div>
         <div>
           <h4 className="eyebrow text-orange mb-4">{t.footer.links}</h4>
           <ul className="space-y-2 text-sm">
             <li><Link to="/" className="hover:text-orange">{t.nav.home}</Link></li>
-            <li><Link to="/about" className="hover:text-orange">{t.nav.about}</Link></li>
             <li><Link to="/directory" className="hover:text-orange">{t.nav.directory}</Link></li>
-            <li><Link to="/contact" className="hover:text-orange">{t.nav.contact}</Link></li>
           </ul>
         </div>
         <div>
@@ -164,8 +162,8 @@ export const Footer = () => {
         <div>
           <h4 className="eyebrow text-orange mb-4">{t.footer.contactNow}</h4>
           <ul className="space-y-2 text-sm">
-            <li>126 S Dixie Blvd, Odessa, TX 79761</li>
-            <li>432 258 4444</li>
+            <li>1104 S Crane Ave, Odessa, TX</li>
+            <li>+1 (432) 258-4444</li>
             <li>info@lovesolidarity.com</li>
           </ul>
         </div>

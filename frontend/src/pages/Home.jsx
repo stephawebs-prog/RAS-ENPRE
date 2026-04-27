@@ -185,7 +185,7 @@ const ContactSection = () => {
           <div className="mt-10 space-y-6 text-sm">
             <div>
               <h4 className="eyebrow text-teal">{t.contact.address}</h4>
-              <p className="mt-1 text-teal-soft">126 S Dixie Blvd<br />Odessa, TX 79761</p>
+              <p className="mt-1 text-teal-soft">1104 S Crane Ave<br />Odessa, TX</p>
             </div>
             <div>
               <h4 className="eyebrow text-teal">{t.contact.hours}</h4>

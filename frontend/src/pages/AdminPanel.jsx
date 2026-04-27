@@ -194,13 +194,14 @@ const AdminPanel = () => {
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.email}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.category}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.city}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.source}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.featured}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {ents.length === 0 ? (
-                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={6}>{t.admin.noResults}</td></tr>
+                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={7}>{t.admin.noResults}</td></tr>
                   ) : ents.map((e) => (
                     <tr key={e.id} className="border-b border-gray-100 hover:bg-cream/40">
                       <td className="px-4 py-3">
@@ -210,6 +211,7 @@ const AdminPanel = () => {
                       <td className="px-4 py-3 text-teal-soft">{e.email}</td>
                       <td className="px-4 py-3 text-teal-soft">{t.categories[e.category] || e.category}</td>
                       <td className="px-4 py-3 text-teal-soft">{e.city}{e.state ? `, ${e.state}` : ""}</td>
+                      <td className="px-4 py-3 text-teal-soft text-xs">{e.source || "—"}</td>
                       <td className="px-4 py-3">
                         <button onClick={() => toggleFeatured(e)} className={`${e.featured ? "text-orange" : "text-gray-300 hover:text-orange"} transition-colors`} data-testid={`feat-${e.id}`}>
                           <Star size={18} fill={e.featured ? "currentColor" : "none"} />
@@ -244,12 +246,13 @@ const AdminPanel = () => {
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.phone}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.city}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.interests}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.source}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.actions}</th>
                   </tr>
                 </thead>
                 <tbody>
                   {clients.length === 0 ? (
-                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={6}>{t.admin.noResults}</td></tr>
+                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={7}>{t.admin.noResults}</td></tr>
                   ) : clients.map((c) => (
                     <tr key={c.id} className="border-b border-gray-100 hover:bg-cream/40">
                       <td className="px-4 py-3 font-semibold text-teal-deep">{c.full_name}</td>
@@ -259,6 +262,7 @@ const AdminPanel = () => {
                       <td className="px-4 py-3 text-teal-soft text-xs">
                         {(c.interests || []).map((k) => t.categories[k] || k).join(", ")}
                       </td>
+                      <td className="px-4 py-3 text-teal-soft text-xs">{c.source || "—"}</td>
                       <td className="px-4 py-3">
                         <button onClick={() => deleteClient(c)} className="text-red-500 hover:text-red-700" title={t.admin.delete} data-testid={`del-client-${c.id}`}>
                           <Trash2 size={16} />

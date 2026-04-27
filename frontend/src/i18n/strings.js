@@ -118,6 +118,9 @@ const dict = {
       clientSubmit: "Create my account",
       interests: "What services interest you?",
       interestsHint: "Pick a few categories so we can recommend businesses to you.",
+      source: "How did you hear about the RED?",
+      sourceHint: "Optional, helps us improve our outreach.",
+      sources: { Roxxi: "Roxxi", TRC: "TRC", UMAPT: "UMAPT", Google: "Google", Social: "Social media", Other: "Other" },
     },
     fields: {
       businessName: "Business name", ownerName: "Owner / contact name", fullName: "Full name",
@@ -153,7 +156,7 @@ const dict = {
       contactReadAll: "Mark read",
       // table headers
       th: { business: "Business", owner: "Owner", email: "Email", category: "Category", city: "City", featured: "★", date: "Date", actions: "Actions",
-            name: "Name", phone: "Phone", interests: "Interests", message: "Message", read: "Read" },
+            name: "Name", phone: "Phone", interests: "Interests", source: "Source", message: "Message", read: "Read" },
     },
     categories: {
       restaurants: "Restaurants", professional_services: "Professional Services",
@@ -276,6 +279,9 @@ const dict = {
       clientSubmit: "Crear mi cuenta",
       interests: "¿Qué servicios te interesan?",
       interestsHint: "Elige algunas categorías para recomendarte negocios.",
+      source: "¿Por dónde nos conociste?",
+      sourceHint: "Opcional, nos ayuda a mejorar.",
+      sources: { Roxxi: "Roxxi", TRC: "TRC", UMAPT: "UMAPT", Google: "Google", Social: "Redes sociales", Other: "Otro" },
     },
     fields: {
       businessName: "Nombre del negocio", ownerName: "Nombre del dueño / contacto", fullName: "Nombre completo",
@@ -310,7 +316,7 @@ const dict = {
       noResults: "Sin registros aún.",
       contactReadAll: "Marcar leído",
       th: { business: "Negocio", owner: "Dueño", email: "Email", category: "Categoría", city: "Ciudad", featured: "★", date: "Fecha", actions: "Acciones",
-            name: "Nombre", phone: "Teléfono", interests: "Intereses", message: "Mensaje", read: "Leído" },
+            name: "Nombre", phone: "Teléfono", interests: "Intereses", source: "Origen", message: "Mensaje", read: "Leído" },
     },
     categories: {
       restaurants: "Restaurantes", professional_services: "Servicios profesionales",

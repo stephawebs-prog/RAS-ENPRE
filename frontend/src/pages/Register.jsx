@@ -11,7 +11,10 @@ const blank = {
   phone: "", city: "", state: "", country: "USA", address: "",
   website: "", logo_url: "", cover_url: "",
   facebook: "", instagram: "", twitter: "", whatsapp: "",
+  source: "",
 };
+
+const SOURCE_KEYS = ["Roxxi", "TRC", "UMAPT", "Google", "Social", "Other"];
 
 const Register = () => {
   const { t } = useI18n();
@@ -37,6 +40,11 @@ const Register = () => {
 
   const submit = async (e) => {
     e.preventDefault();
+    // Guard: if not on final step, only advance to next step (prevents Enter-to-submit bugs)
+    if (step < 2) {
+      if (stepValid()) setStep((s) => s + 1);
+      return;
+    }
     setError(""); setLoading(true);
     try {
       await register(form);
@@ -99,6 +107,14 @@ const Register = () => {
                   <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.password}</label>
                   <input type="password" required minLength={6} className="field-input mt-1" value={form.password} onChange={set("password")} data-testid="reg-password" />
                   <p className="text-xs text-teal-soft mt-1">min 6 characters</p>
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.source}</label>
+                  <select className="field-input mt-1" value={form.source} onChange={set("source")} data-testid="reg-source">
+                    <option value="">—</option>
+                    {SOURCE_KEYS.map((k) => (<option key={k} value={k}>{t.auth.sources[k]}</option>))}
+                  </select>
+                  <p className="text-xs text-teal-soft mt-1">{t.auth.sourceHint}</p>
                 </div>
               </>
             )}

@@ -41,6 +41,8 @@ CATEGORIES = [
     "automotive", "food_beverage", "other",
 ]
 
+REFERRAL_SOURCES = ["Roxxi", "TRC", "UMAPT", "Google", "Social", "Other"]
+
 # ---------------- Models ----------------
 class RegisterEntrepreneurIn(BaseModel):
     email: EmailStr
@@ -61,6 +63,7 @@ class RegisterEntrepreneurIn(BaseModel):
     instagram: Optional[str] = ""
     twitter: Optional[str] = ""
     whatsapp: Optional[str] = ""
+    source: Optional[str] = ""
 
 class RegisterClientIn(BaseModel):
     email: EmailStr
@@ -70,6 +73,7 @@ class RegisterClientIn(BaseModel):
     city: str = Field(min_length=2, max_length=120)
     state: Optional[str] = ""
     interests: List[str] = []
+    source: Optional[str] = ""
 
 class LoginIn(BaseModel):
     email: EmailStr
@@ -171,6 +175,7 @@ def public_user(doc: dict) -> dict:
         "city": doc.get("city", ""),
         "state": doc.get("state", ""),
         "interests": doc.get("interests", []),
+        "source": doc.get("source", ""),
         "created_at": doc.get("created_at", ""),
     }
 
@@ -182,6 +187,10 @@ async def root():
 @api.get("/categories")
 async def list_categories():
     return {"categories": CATEGORIES}
+
+@api.get("/referral-sources")
+async def list_referral_sources():
+    return {"sources": REFERRAL_SOURCES}
 
 # ---------------- Auth ----------------
 @api.post("/auth/register-entrepreneur")
@@ -199,6 +208,7 @@ async def auth_register_entrepreneur(payload: RegisterEntrepreneurIn, response: 
         "full_name": payload.owner_name,
         "phone": payload.phone, "city": payload.city, "state": payload.state or "",
         "interests": [],
+        "source": payload.source or "",
         "created_at": now_iso(),
     }
     await db.users.insert_one(user_doc)
@@ -247,6 +257,7 @@ async def auth_register_client(payload: RegisterClientIn, response: Response):
         "city": payload.city.strip(),
         "state": payload.state or "",
         "interests": interests,
+        "source": payload.source or "",
         "created_at": now_iso(),
     }
     await db.users.insert_one(user_doc)
@@ -379,10 +390,11 @@ async def admin_list_entrepreneurs(q: Optional[str] = None, _=Depends(require_ad
         ]
     cursor = db.entrepreneurs.find(filt, {"_id": 0}).sort("created_at", -1).limit(500)
     items = [public_entrepreneur(d) async for d in cursor]
-    # enrich with email of owner
+    # enrich with email + source of owner
     for item in items:
-        u = await db.users.find_one({"id": item["user_id"]}, {"_id": 0, "email": 1})
+        u = await db.users.find_one({"id": item["user_id"]}, {"_id": 0, "email": 1, "source": 1})
         item["email"] = (u or {}).get("email", "")
+        item["source"] = (u or {}).get("source", "")
     return {"items": items, "total": len(items)}
 
 @api.patch("/admin/entrepreneurs/{eid}")
@@ -468,11 +480,12 @@ async def admin_export_entrepreneurs(_=Depends(require_admin)):
     cursor = db.entrepreneurs.find({}, {"_id": 0}).sort("created_at", -1)
     items = []
     async for d in cursor:
-        u = await db.users.find_one({"id": d.get("user_id")}, {"_id": 0, "email": 1})
+        u = await db.users.find_one({"id": d.get("user_id")}, {"_id": 0, "email": 1, "source": 1})
         d["email"] = (u or {}).get("email", "")
+        d["source"] = (u or {}).get("source", "")
         items.append(d)
     fields = ["business_name", "owner_name", "email", "category", "phone", "city", "state",
-              "country", "website", "instagram", "facebook", "featured", "created_at"]
+              "country", "website", "instagram", "facebook", "featured", "source", "created_at"]
     return _csv_response(items, fields, "entrepreneurs.csv")
 
 @api.get("/admin/export/clients.csv")
@@ -482,7 +495,7 @@ async def admin_export_clients(_=Depends(require_admin)):
     async for d in cursor:
         d["interests"] = ",".join(d.get("interests", []))
         items.append(d)
-    fields = ["full_name", "email", "phone", "city", "state", "interests", "created_at"]
+    fields = ["full_name", "email", "phone", "city", "state", "interests", "source", "created_at"]
     return _csv_response(items, fields, "clients.csv")
 
 # ---------------- Lifecycle ----------------

@@ -6,8 +6,10 @@ import { useAuth } from "@/auth/AuthContext";
 import api, { formatApiError } from "@/lib/api";
 
 const blank = {
-  email: "", password: "", full_name: "", phone: "", city: "", state: "", interests: [],
+  email: "", password: "", full_name: "", phone: "", city: "", state: "", interests: [], source: "",
 };
+
+const SOURCE_KEYS = ["Roxxi", "TRC", "UMAPT", "Google", "Social", "Other"];
 
 const RegisterClient = () => {
   const { t } = useI18n();
@@ -108,6 +110,15 @@ const RegisterClient = () => {
                   </button>
                 ))}
               </div>
+            </div>
+
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.source}</label>
+              <select className="field-input mt-1" value={form.source} onChange={set("source")} data-testid="client-source">
+                <option value="">—</option>
+                {SOURCE_KEYS.map((k) => (<option key={k} value={k}>{t.auth.sources[k]}</option>))}
+              </select>
+              <p className="text-xs text-teal-soft mt-1">{t.auth.sourceHint}</p>
             </div>
 
             {error && <p className="text-sm text-red-600" data-testid="client-error">{error}</p>}

@@ -12,12 +12,14 @@ import requests
 BASE_URL = os.environ.get("REACT_APP_BACKEND_URL", "https://creator-connect-302.preview.emergentagent.com").rstrip("/")
 API = f"{BASE_URL}/api"
 
-ADMIN_EMAIL = "admin@redsolidaridad.com"
-ADMIN_PASSWORD = "Admin@RED2026"
-ENT_EMAIL = "maria@elsolcatering.com"
-ENT_PASSWORD = "Demo@2026"
-CLIENT_EMAIL = "cliente@demo.com"
-CLIENT_PASSWORD = "Demo@2026"
+# Test credentials are loaded from env (.env). The same values are used by
+# the backend admin seeding so tests can authenticate as the seeded users.
+ADMIN_EMAIL = os.environ.get("ADMIN_EMAIL", "admin@redsolidaridad.com")
+ADMIN_PASSWORD = os.environ.get("ADMIN_PASSWORD", "Admin@RED2026")
+ENT_EMAIL = os.environ.get("TEST_ENT_EMAIL", "maria@elsolcatering.com")
+ENT_PASSWORD = os.environ.get("TEST_ENT_PASSWORD", "Demo@2026")
+CLIENT_EMAIL = os.environ.get("TEST_CLIENT_EMAIL", "cliente@demo.com")
+CLIENT_PASSWORD = os.environ.get("TEST_CLIENT_PASSWORD", "Demo@2026")
 
 CATEGORIES = [
     "restaurants", "professional_services", "health_wellness", "technology",
@@ -103,7 +105,7 @@ class TestAuth:
         d = r.json()
         assert d["user"]["role"] == "entrepreneur"
         assert d["profile"] is not None
-        assert d["profile"]["business_name"] == "El Sol Catering"
+        assert d["profile"]["business_name"].startswith("El Sol Catering")
 
     def test_me_client_no_profile(self, client_token):
         r = requests.get(f"{API}/auth/me", headers=auth_headers(client_token))

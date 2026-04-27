@@ -48,8 +48,8 @@ module.exports = {
         cream: "#FBF8F3",
       },
       fontFamily: {
-        display: ["'Cormorant Garamond'", "ui-serif", "Georgia", "serif"],
-        sans: ["Manrope", "ui-sans-serif", "system-ui", "sans-serif"],
+        display: ["Montserrat", "ui-sans-serif", "system-ui", "sans-serif"],
+        sans: ["Nunito", "ui-sans-serif", "system-ui", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",

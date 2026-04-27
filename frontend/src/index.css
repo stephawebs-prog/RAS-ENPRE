@@ -2,114 +2,160 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,600&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 175 39% 12%;
+    --card: 0 0% 100%;
+    --card-foreground: 175 39% 12%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 175 39% 12%;
+    --primary: 173 43% 21%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 30 50% 96%;
+    --secondary-foreground: 173 43% 21%;
+    --muted: 173 10% 95%;
+    --muted-foreground: 173 14% 36%;
+    --accent: 22 79% 57%;
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 173 14% 88%;
+    --input: 173 14% 88%;
+    --ring: 173 43% 21%;
+    --radius: 0.75rem;
+  }
+}
+
+* { border-color: hsl(var(--border)); box-sizing: border-box; }
+html, body, #root { background: #FFFFFF; }
 body {
-    margin: 0;
-    font-family:
-        -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
+  margin: 0;
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+  color: #112A26;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-code {
-    font-family:
-        source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+.font-display { font-family: 'Cormorant Garamond', ui-serif, Georgia, serif; }
+
+::selection { background: #E97A3A; color: white; }
+
+/* Pill button micro-animation */
+.btn-orange {
+  background: #E97A3A;
+  color: white;
+  border-radius: 9999px;
+  padding: 14px 28px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: transform 200ms ease, background-color 200ms ease, box-shadow 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 6px 18px rgba(233,122,58,0.25);
 }
+.btn-orange:hover { background: #D86B2F; transform: translateY(-2px); box-shadow: 0 10px 24px rgba(233,122,58,0.35); }
+.btn-orange:active { transform: translateY(0); }
+
+.btn-teal-outline {
+  border: 2px solid #1F4E47;
+  color: #1F4E47;
+  border-radius: 9999px;
+  padding: 12px 26px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  transition: all 200ms ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
+}
+.btn-teal-outline:hover { background: #1F4E47; color: white; }
+
+.btn-teal {
+  background: #1F4E47; color: white;
+  border-radius: 9999px;
+  padding: 14px 28px;
+  font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; font-size: 0.85rem;
+  transition: background-color 200ms ease, transform 200ms ease;
+}
+.btn-teal:hover { background: #163A35; transform: translateY(-1px); }
+
+.eyebrow {
+  text-transform: uppercase;
+  letter-spacing: 0.22em;
+  font-weight: 700;
+  font-size: 0.78rem;
+}
+
+.field-input {
+  width: 100%;
+  border: 1px solid #E2E8F0;
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-size: 0.95rem;
+  background: white;
+  transition: border-color 150ms ease, box-shadow 150ms ease;
+}
+.field-input:focus { outline: none; border-color: #1F4E47; box-shadow: 0 0 0 3px rgba(31,78,71,0.12); }
+
+.section { padding: 5rem 0; }
+.container-tight { max-width: 1200px; margin-inline: auto; padding-inline: 1.25rem; }
+
+/* fade-in entrance */
+.fade-up { animation: fadeUp 700ms ease both; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+/* category chip */
+.chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  border: 1px solid #E2E8F0; color: #1F4E47; background: white;
+  border-radius: 9999px; padding: 8px 14px; font-size: 0.85rem; font-weight: 600;
+  cursor: pointer; transition: all 180ms ease;
+}
+.chip:hover { border-color: #E97A3A; color: #E97A3A; }
+.chip.active { background: #1F4E47; color: white; border-color: #1F4E47; }
+
+/* card */
+.biz-card {
+  background: white; border: 1px solid #E2E8F0; border-radius: 20px;
+  overflow: hidden; transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+  display: flex; flex-direction: column;
+}
+.biz-card:hover { transform: translateY(-4px); border-color: #1F4E47; box-shadow: 0 16px 40px rgba(17,42,38,0.10); }
+
+/* hero overlay */
+.hero-overlay { background: linear-gradient(180deg, rgba(31,78,71,0.55), rgba(31,78,71,0.78)); }
+
+/* utility */
+.line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+
+/* progress bar steps */
+.step-dot {
+  width: 28px; height: 28px; border-radius: 9999px;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 0.85rem;
+}
+.step-dot.active { background: #E97A3A; color: white; }
+.step-dot.done { background: #1F4E47; color: white; }
+.step-dot.todo { background: #E2E8F0; color: #4A625F; }
 
 @layer base {
-    :root {
-        --background: 0 0% 100%;
-        --foreground: 0 0% 3.9%;
-        --card: 0 0% 100%;
-        --card-foreground: 0 0% 3.9%;
-        --popover: 0 0% 100%;
-        --popover-foreground: 0 0% 3.9%;
-        --primary: 0 0% 9%;
-        --primary-foreground: 0 0% 98%;
-        --secondary: 0 0% 96.1%;
-        --secondary-foreground: 0 0% 9%;
-        --muted: 0 0% 96.1%;
-        --muted-foreground: 0 0% 45.1%;
-        --accent: 0 0% 96.1%;
-        --accent-foreground: 0 0% 9%;
-        --destructive: 0 84.2% 60.2%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 89.8%;
-        --input: 0 0% 89.8%;
-        --ring: 0 0% 3.9%;
-        --chart-1: 12 76% 61%;
-        --chart-2: 173 58% 39%;
-        --chart-3: 197 37% 24%;
-        --chart-4: 43 74% 66%;
-        --chart-5: 27 87% 67%;
-        --radius: 0.5rem;
-    }
-    .dark {
-        --background: 0 0% 3.9%;
-        --foreground: 0 0% 98%;
-        --card: 0 0% 3.9%;
-        --card-foreground: 0 0% 98%;
-        --popover: 0 0% 3.9%;
-        --popover-foreground: 0 0% 98%;
-        --primary: 0 0% 98%;
-        --primary-foreground: 0 0% 9%;
-        --secondary: 0 0% 14.9%;
-        --secondary-foreground: 0 0% 98%;
-        --muted: 0 0% 14.9%;
-        --muted-foreground: 0 0% 63.9%;
-        --accent: 0 0% 14.9%;
-        --accent-foreground: 0 0% 98%;
-        --destructive: 0 62.8% 30.6%;
-        --destructive-foreground: 0 0% 98%;
-        --border: 0 0% 14.9%;
-        --input: 0 0% 14.9%;
-        --ring: 0 0% 83.1%;
-        --chart-1: 220 70% 50%;
-        --chart-2: 160 60% 45%;
-        --chart-3: 30 80% 55%;
-        --chart-4: 280 65% 60%;
-        --chart-5: 340 75% 55%;
-    }
-}
-
-@layer base {
-    * {
-        @apply border-border;
-    }
-    body {
-        @apply bg-background text-foreground;
-    }
-}
-
-@layer base {
-    [data-debug-wrapper="true"] {
-        display: contents !important;
-    }
-
+    [data-debug-wrapper="true"] { display: contents !important; }
     [data-debug-wrapper="true"] > * {
-        margin-left: inherit;
-        margin-right: inherit;
-        margin-top: inherit;
-        margin-bottom: inherit;
-        padding-left: inherit;
-        padding-right: inherit;
-        padding-top: inherit;
-        padding-bottom: inherit;
-        column-gap: inherit;
-        row-gap: inherit;
-        gap: inherit;
-        border-left-width: inherit;
-        border-right-width: inherit;
-        border-top-width: inherit;
-        border-bottom-width: inherit;
-        border-left-style: inherit;
-        border-right-style: inherit;
-        border-top-style: inherit;
-        border-bottom-style: inherit;
-        border-left-color: inherit;
-        border-right-color: inherit;
-        border-top-color: inherit;
-        border-bottom-color: inherit;
+        margin-left: inherit; margin-right: inherit; margin-top: inherit; margin-bottom: inherit;
+        padding-left: inherit; padding-right: inherit; padding-top: inherit; padding-bottom: inherit;
+        column-gap: inherit; row-gap: inherit; gap: inherit;
+        border-left-width: inherit; border-right-width: inherit; border-top-width: inherit; border-bottom-width: inherit;
+        border-left-style: inherit; border-right-style: inherit; border-top-style: inherit; border-bottom-style: inherit;
+        border-left-color: inherit; border-right-color: inherit; border-top-color: inherit; border-bottom-color: inherit;
     }
 }

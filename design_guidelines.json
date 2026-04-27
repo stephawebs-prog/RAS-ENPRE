@@ -1,0 +1,111 @@
+{
+  "project_name": "Red de Amor y Solidaridad - Entrepreneur Network",
+  "theme_and_archetype": {
+    "theme": "Light",
+    "archetype": "1 (Organic & Earthy)",
+    "description": "Warm, trust-building, and community-driven interface. Teal represents stability, growth, and trust, while warm orange signifies energy, community, and action. Designed primarily for community networks and entrepreneur registration."
+  },
+  "colors": {
+    "primary_teal": "#1F4E47",
+    "primary_orange": "#E97A3A",
+    "background_primary": "#FFFFFF",
+    "background_secondary": "#F7F9F8",
+    "text_primary": "#112A26",
+    "text_secondary": "#4A625F",
+    "border_color": "#E2E8F0",
+    "hover_teal": "#163A35",
+    "hover_orange": "#D86B2F",
+    "overlay_teal": "rgba(31, 78, 71, 0.6)"
+  },
+  "typography": {
+    "headings": {
+      "family": "Cormorant Garamond, ui-serif, Georgia, serif",
+      "style": "Warm humanist serif, flowing script-leaning feel for large displays.",
+      "sizes": {
+        "h1": "text-5xl sm:text-6xl tracking-tight leading-none",
+        "h2": "text-4xl sm:text-5xl tracking-tight leading-tight",
+        "h3": "text-2xl sm:text-3xl tracking-tight"
+      }
+    },
+    "body": {
+      "family": "Manrope, ui-sans-serif, system-ui, sans-serif",
+      "style": "Clean grotesque sans, highly readable, friendly.",
+      "sizes": {
+        "base": "text-base leading-relaxed",
+        "small": "text-sm",
+        "eyebrow": "text-sm sm:text-base uppercase tracking-[0.2em] font-bold"
+      }
+    }
+  },
+  "spacing_and_layout": {
+    "general": "Generous spacing philosophy (p-6, p-12, p-16, p-24). Create breathing room around community photos and profile details.",
+    "borders": "Subtle borders (border-border/40). No harsh dropshadows. Rely on crisp 1px borders for structure.",
+    "border_radius": "Pill-shaped (rounded-full) for buttons. Slightly rounded corners (rounded-2xl) for profile and service cards to maintain an organic, friendly feel.",
+    "grids": "Bento-style asymmetric grids for marketing sections. Standard responsive grids (grid-cols-1 md:grid-cols-2 lg:grid-cols-3) for the Entrepreneur Directory."
+  },
+  "components": {
+    "buttons": {
+      "primary": "bg-[#E97A3A] hover:bg-[#D86B2F] text-white rounded-full px-8 py-3 uppercase tracking-wider font-bold transition-all hover:-translate-y-1 shadow-sm",
+      "secondary": "border-2 border-[#1F4E47] text-[#1F4E47] hover:bg-[#1F4E47] hover:text-white rounded-full px-8 py-3 transition-all",
+      "pills_filters": "bg-white border border-gray-200 text-[#1F4E47] rounded-full px-4 py-2 hover:border-[#E97A3A] hover:text-[#E97A3A]"
+    },
+    "hero": {
+      "layout": "Full-bleed background image with a teal overlay (bg-[#1F4E47]/60). Text centered or left-aligned with a max-width container.",
+      "elements": "Eyebrow 'TOGETHER, WE TRANSFORM.' (uppercase, tracking-[0.2em], white). H1 'Moving Hearts, Uniting Efforts, And Generating Real Impact.' (Serif, white). Primary orange CTA."
+    },
+    "service_strip": {
+      "layout": "3-column grid below hero. White background.",
+      "elements": "Orange circular icon backgrounds with white icons. Dark teal bold labels ('Organizations & Churches', 'Community Leaders', 'Entrepreneurs')."
+    },
+    "business_cards": {
+      "layout": "Cardless or subtle 1px border. Flex column.",
+      "elements": "Logo/Image top, Category Badge (teal text on light teal bg), Business Name (Serif), Location (Sans, small), short description, 'View profile' link (Orange text)."
+    },
+    "forms_and_dashboard": {
+      "layout": "Clean, distraction-free layouts. Sidebar for dashboard with teal active states.",
+      "elements": "Multistep registration needs clear progress indicators (orange). Use Shadcn customized components (Inputs, Selects) with rounded-lg borders and focus:ring-[#1F4E47]."
+    }
+  },
+  "icons": {
+    "library": "lucide-react",
+    "usage": "Use warm, friendly rounded icons. For the service strip, use lucide icons inside a circular orange background."
+  },
+  "media": {
+    "image_urls": {
+      "woven_heart_logo": {
+        "url": "https://static.prod-images.emergentagent.com/jobs/cffe881a-a921-478f-a530-0b62580c14e8/images/b6d7aaa794d6cb2599576f55db786de2151ff2794b4bd0c59f95f8e02e756e99.png",
+        "description": "Primary brand logo. Colorful woven heart with teal, warm orange, purple, and yellow strands on white.",
+        "placement": "Header navigation, Footer, Login screen, Dashboard sidebar top."
+      },
+      "community_hero_bg": {
+        "url": "https://static.prod-images.emergentagent.com/jobs/cffe881a-a921-478f-a530-0b62580c14e8/images/5b59f572a0efd7398a6afd28f41a7213002014dbcc8fce682e0e074ef3205110.png",
+        "description": "Diverse community of smiling people and children. Used with a 60% dark teal (#1F4E47) overlay.",
+        "placement": "Main landing page hero section background."
+      },
+      "entrepreneur_profile_1": {
+        "url": "https://images.unsplash.com/photo-1768478563696-ca21b9692a8f?crop=entropy&cs=srgb&fm=jpg&ixid=M3w4NjA1Mjh8MHwxfHNlYXJjaHwzfHxsYXRpbm8lMjBidXNpbmVzcyUyMG93bmVyJTIwc21pbGluZ3xlbnwwfHx8fDE3NzcyOTcyNzB8MA&ixlib=rb-4.1.0&q=85",
+        "description": "Smiling woman holding a clay object in a workshop.",
+        "placement": "Entrepreneur Directory dummy card image, or 'Why Join' section feature image."
+      },
+      "community_gathering": {
+        "url": "https://images.pexels.com/photos/3892902/pexels-photo-3892902.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Large diverse group gathered outdoors.",
+        "placement": "About us or 'Why Join the Network' visual background."
+      },
+      "volunteers": {
+        "url": "https://images.pexels.com/photos/6591433/pexels-photo-6591433.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940",
+        "description": "Diverse group of volunteers taking a selfie, community service.",
+        "placement": "Call to action section for 'Organizations & Churches' or 'Community Leaders'."
+      }
+    }
+  },
+  "instructions_to_main_agent": [
+    "Strictly adhere to the exact color palette: deep teal (#1F4E47) and warm orange (#E97A3A). Do not invent generic SaaS blue or purple gradients.",
+    "Implement bilingual support structure early (EN/ES) and ensure the toggle is in the top utility bar.",
+    "Ensure all interactive elements have data-testid attributes (e.g., data-testid='hero-cta-button').",
+    "Use Shadcn UI for forms, tabs, and modals, but customize them by stripping out default borders and applying the rounded-2xl or rounded-full style where specified.",
+    "For the hero section, use pure HTML/Tailwind to properly layer the background image, the teal overlay (bg-[#1F4E47]/60), and the foreground text.",
+    "Use a fluid serif font for major headings (H1, H2) to evoke the 'moving hearts' and 'human' aspect of the community.",
+    "Build a sidebar layout for the Entrepreneur Dashboard. The registration flow should be a clear, multistep process with orange progress indicators."
+  ]
+}

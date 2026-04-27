@@ -17,10 +17,12 @@ const Hero = () => {
         <div className="absolute inset-0 hero-overlay" />
       </div>
       <div className="relative container-tight py-28 md:py-40 text-white">
-        <div className="max-w-3xl fade-up">
+        <div className="max-w-4xl fade-up">
           <p className="eyebrow text-orange mb-5" data-testid="hero-eyebrow">{t.hero.eyebrow}</p>
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.05] tracking-tight">
-            {t.hero.title}
+          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.1] tracking-tight">
+            {t.hero.titleLines.map((line, i) => (
+              <span key={line} className="block">{line}</span>
+            ))}
           </h1>
           <p className="mt-7 text-lg md:text-xl text-white/85 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
@@ -30,14 +32,6 @@ const Hero = () => {
             <Link to="/directory" className="text-white/90 hover:text-orange inline-flex items-center gap-2 text-sm font-bold uppercase tracking-widest border-b border-white/30 hover:border-orange pb-1 transition-colors" data-testid="hero-cta-directory">
               {t.hero.ctaSecondary} <ArrowRight size={14} />
             </Link>
-          </div>
-          <div className="mt-14 flex flex-wrap gap-x-12 gap-y-6">
-            {t.hero.stats.map((s, i) => (
-              <div key={i}>
-                <div className="font-display text-4xl text-orange leading-none">{s.v}</div>
-                <div className="text-xs uppercase tracking-widest text-white/70 mt-2">{s.l}</div>
-              </div>
-            ))}
           </div>
         </div>
       </div>

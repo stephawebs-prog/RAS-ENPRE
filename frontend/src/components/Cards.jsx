@@ -17,7 +17,7 @@ export const BusinessCard = ({ biz }) => {
       className="biz-card group"
       data-testid={`biz-card-${biz.id}`}
     >
-      <div className="relative h-44 bg-teal-mist overflow-hidden">
+      <div className="relative h-48 bg-teal-mist overflow-hidden">
         {biz.cover_url ? (
           <img src={biz.cover_url} alt={biz.business_name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
         ) : (
@@ -31,14 +31,14 @@ export const BusinessCard = ({ biz }) => {
           </span>
         )}
       </div>
-      <div className="p-5 flex flex-col gap-3 flex-1">
-        <div className="flex items-start gap-3">
-          <div className="w-12 h-12 rounded-full overflow-hidden border-2 border-white -mt-12 shadow-md bg-white shrink-0">
+      <div className="p-6 flex flex-col gap-3 flex-1">
+        <div className="flex items-center gap-3">
+          <div className="w-12 h-12 rounded-full overflow-hidden border border-gray-200 bg-white shrink-0">
             <img src={biz.logo_url || FALLBACK_LOGO} alt="" className="w-full h-full object-cover" />
           </div>
-          <div className="flex-1 min-w-0 pt-0.5">
-            <h3 className="font-display text-2xl text-teal-deep leading-tight truncate">{biz.business_name}</h3>
-            <div className="flex items-center gap-3 text-xs text-teal-soft mt-1">
+          <div className="flex-1 min-w-0">
+            <h3 className="font-display text-xl text-teal-deep leading-tight truncate">{biz.business_name}</h3>
+            <div className="flex items-center gap-3 text-xs text-teal-soft mt-0.5">
               <span className="inline-flex items-center gap-1"><Tag size={11} /> {cat}</span>
               {biz.city && (<span className="inline-flex items-center gap-1"><MapPin size={11} /> {biz.city}{biz.state ? `, ${biz.state}` : ""}</span>)}
             </div>

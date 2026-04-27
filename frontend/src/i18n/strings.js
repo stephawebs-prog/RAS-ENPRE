@@ -12,7 +12,7 @@ const dict = {
     },
     hero: {
       eyebrow: "Together, we transform.",
-      title: "Moving Hearts, Uniting Efforts, And Generating Real Impact.",
+      titleLines: ["Moving Hearts.", "Uniting Efforts.", "Generating Real Impact."],
       subtitle: "A community network connecting entrepreneurs and clients so your business reaches more people and creates real impact.",
       ctaPrimary: "Join the RED — it's free",
       ctaSecondary: "Browse the directory",
@@ -175,7 +175,7 @@ const dict = {
     },
     hero: {
       eyebrow: "Juntos, transformamos.",
-      title: "Movemos Corazones, Unimos Esfuerzos, Generamos Impacto Real.",
+      titleLines: ["Movemos Corazones.", "Unimos Esfuerzos.", "Generamos Impacto Real."],
       subtitle: "Una red comunitaria que conecta emprendedores y clientes para que tu negocio llegue a más personas y genere impacto real.",
       ctaPrimary: "Únete a la RED — es gratis",
       ctaSecondary: "Explorar el directorio",

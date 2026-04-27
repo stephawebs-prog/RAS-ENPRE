@@ -68,8 +68,6 @@ export const Navbar = () => {
         <nav className="hidden lg:flex items-center gap-8">
           <NavLink to="/" end className={linkClass} data-testid="nav-home">{t.nav.home}</NavLink>
           <NavLink to="/directory" className={linkClass} data-testid="nav-directory">{t.nav.directory}</NavLink>
-          <NavLink to="/about" className={linkClass} data-testid="nav-about">{t.nav.about}</NavLink>
-          <NavLink to="/contact" className={linkClass} data-testid="nav-contact">{t.nav.contact}</NavLink>
         </nav>
         <div className="hidden lg:flex items-center gap-3">
           {user ? (
@@ -114,8 +112,6 @@ export const Navbar = () => {
           <div className="container-tight py-4 flex flex-col gap-3">
             <NavLink to="/" end className={linkClass} onClick={() => setOpen(false)}>{t.nav.home}</NavLink>
             <NavLink to="/directory" className={linkClass} onClick={() => setOpen(false)}>{t.nav.directory}</NavLink>
-            <NavLink to="/about" className={linkClass} onClick={() => setOpen(false)}>{t.nav.about}</NavLink>
-            <NavLink to="/contact" className={linkClass} onClick={() => setOpen(false)}>{t.nav.contact}</NavLink>
             {user ? (
               <>
                 <Link to="/dashboard" className="btn-teal-outline w-fit" onClick={() => setOpen(false)}>{t.nav.dashboard}</Link>

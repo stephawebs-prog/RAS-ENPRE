@@ -5,7 +5,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { BusinessCard } from "@/components/Cards";
 import api, { formatApiError } from "@/lib/api";
 
-const HERO_BG = "https://static.prod-images.emergentagent.com/jobs/cffe881a-a921-478f-a530-0b62580c14e8/images/5b59f572a0efd7398a6afd28f41a7213002014dbcc8fce682e0e074ef3205110.png";
+const HERO_BG = "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=2400&q=80&auto=format&fit=crop";
 const ABOUT_IMG = "https://images.pexels.com/photos/3892902/pexels-photo-3892902.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940";
 
 const Hero = () => {

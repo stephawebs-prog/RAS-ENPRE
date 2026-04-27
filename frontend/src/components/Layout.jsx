@@ -63,8 +63,8 @@ export const Navbar = () => {
   return (
     <header className="sticky top-0 z-40 bg-white/95 backdrop-blur border-b border-gray-100">
       <TopBar />
-      <div className="container-tight flex items-center justify-between py-4">
-        <Logo />
+      <div className="container-tight flex items-center justify-between py-3">
+        <Logo className="h-20" />
         <nav className="hidden lg:flex items-center gap-8">
           <NavLink to="/" end className={linkClass} data-testid="nav-home">{t.nav.home}</NavLink>
           <NavLink to="/directory" className={linkClass} data-testid="nav-directory">{t.nav.directory}</NavLink>

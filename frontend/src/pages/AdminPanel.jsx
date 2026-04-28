@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Users, Briefcase, MessageSquare, Star, Download, Trash2, Search, ExternalLink, Eye, MailOpen } from "lucide-react";
+import { Users, Briefcase, MessageSquare, Star, Download, Trash2, Search, ExternalLink, Eye, MailOpen, ChevronDown, Phone, Mail, Globe, Facebook, Instagram, MessageCircle, MapPin } from "lucide-react";
 import api, { API, formatApiError } from "@/lib/api";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
@@ -21,6 +21,31 @@ const Tabs = ({ value, onChange, items }) => (
     ))}
   </div>
 );
+
+const ContactRow = ({ icon: Icon, label, value, href }) => {
+  if (!value) return (
+    <div className="flex items-start gap-2 text-teal-soft/50">
+      <Icon size={14} className="mt-0.5 shrink-0" />
+      <div><div className="text-xs uppercase tracking-wider font-bold">{label}</div><div className="text-sm">—</div></div>
+    </div>
+  );
+  const inner = (
+    <>
+      <Icon size={14} className="mt-0.5 shrink-0 text-teal" />
+      <div className="min-w-0">
+        <div className="text-xs uppercase tracking-wider font-bold text-teal">{label}</div>
+        <div className="text-sm text-teal-deep break-all">{value}</div>
+      </div>
+    </>
+  );
+  return href ? (
+    <a href={href} target="_blank" rel="noreferrer" className="flex items-start gap-2 hover:text-orange transition-colors">
+      {inner}
+    </a>
+  ) : (
+    <div className="flex items-start gap-2">{inner}</div>
+  );
+};
 
 const StatCard = ({ icon: Icon, label, value, color = "teal" }) => (
   <div className="bg-white rounded-2xl border border-gray-200 p-6">
@@ -47,6 +72,7 @@ const AdminPanel = () => {
   const [messages, setMessages] = useState([]);
   const [q, setQ] = useState("");
   const [error, setError] = useState("");
+  const [expandedId, setExpandedId] = useState(null);
 
   useEffect(() => {
     if (user === false) { navigate("/login"); return; }
@@ -190,6 +216,7 @@ const AdminPanel = () => {
               <table className="w-full text-sm" data-testid="admin-ents-table">
                 <thead className="bg-cream border-b border-gray-200">
                   <tr className="text-left text-teal">
+                    <th className="px-4 py-3 w-8"></th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.business}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.email}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.category}</th>
@@ -201,33 +228,58 @@ const AdminPanel = () => {
                 </thead>
                 <tbody>
                   {ents.length === 0 ? (
-                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={7}>{t.admin.noResults}</td></tr>
+                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={8}>{t.admin.noResults}</td></tr>
                   ) : ents.map((e) => (
-                    <tr key={e.id} className="border-b border-gray-100 hover:bg-cream/40">
-                      <td className="px-4 py-3">
-                        <div className="font-display text-lg text-teal-deep leading-tight">{e.business_name}</div>
-                        <div className="text-xs text-teal-soft">{e.owner_name}</div>
-                      </td>
-                      <td className="px-4 py-3 text-teal-soft">{e.email}</td>
-                      <td className="px-4 py-3 text-teal-soft">{t.categories[e.category] || e.category}</td>
-                      <td className="px-4 py-3 text-teal-soft">{e.city}{e.state ? `, ${e.state}` : ""}</td>
-                      <td className="px-4 py-3 text-teal-soft text-xs">{e.source || "—"}</td>
-                      <td className="px-4 py-3">
-                        <button onClick={() => toggleFeatured(e)} className={`${e.featured ? "text-orange" : "text-gray-300 hover:text-orange"} transition-colors`} data-testid={`feat-${e.id}`}>
-                          <Star size={18} fill={e.featured ? "currentColor" : "none"} />
-                        </button>
-                      </td>
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-2">
-                          <Link to={`/entrepreneur/${e.id}`} className="text-teal hover:text-orange" title={t.admin.view}>
-                            <Eye size={16} />
-                          </Link>
-                          <button onClick={() => deleteEnt(e)} className="text-red-500 hover:text-red-700" title={t.admin.delete} data-testid={`del-ent-${e.id}`}>
-                            <Trash2 size={16} />
+                    <React.Fragment key={e.id}>
+                      <tr className="border-b border-gray-100 hover:bg-cream/40 cursor-pointer" onClick={() => setExpandedId(expandedId === e.id ? null : e.id)}>
+                        <td className="px-4 py-3">
+                          <ChevronDown size={16} className={`text-teal-soft transition-transform ${expandedId === e.id ? "rotate-180" : ""}`} />
+                        </td>
+                        <td className="px-4 py-3">
+                          <div className="font-display text-lg text-teal-deep leading-tight">{e.business_name}</div>
+                          <div className="text-xs text-teal-soft">{e.owner_name}</div>
+                        </td>
+                        <td className="px-4 py-3 text-teal-soft">{e.email}</td>
+                        <td className="px-4 py-3 text-teal-soft">{t.categories[e.category] || e.category}</td>
+                        <td className="px-4 py-3 text-teal-soft">{e.city}{e.state ? `, ${e.state}` : ""}</td>
+                        <td className="px-4 py-3 text-teal-soft text-xs">{e.source || "—"}</td>
+                        <td className="px-4 py-3" onClick={(ev) => ev.stopPropagation()}>
+                          <button onClick={() => toggleFeatured(e)} className={`${e.featured ? "text-orange" : "text-gray-300 hover:text-orange"} transition-colors`} data-testid={`feat-${e.id}`}>
+                            <Star size={18} fill={e.featured ? "currentColor" : "none"} />
                           </button>
-                        </div>
-                      </td>
-                    </tr>
+                        </td>
+                        <td className="px-4 py-3" onClick={(ev) => ev.stopPropagation()}>
+                          <div className="flex items-center gap-2">
+                            <Link to={`/entrepreneur/${e.id}`} className="text-teal hover:text-orange" title={t.admin.view}>
+                              <Eye size={16} />
+                            </Link>
+                            <button onClick={() => deleteEnt(e)} className="text-red-500 hover:text-red-700" title={t.admin.delete} data-testid={`del-ent-${e.id}`}>
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                      {expandedId === e.id && (
+                        <tr className="bg-cream/60 border-b border-gray-100">
+                          <td></td>
+                          <td colSpan={7} className="px-4 py-5">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
+                              <ContactRow icon={Mail} label="Email" value={e.email} href={e.email ? `mailto:${e.email}` : ""} />
+                              <ContactRow icon={Phone} label="Teléfono" value={e.phone} href={e.phone ? `tel:${e.phone}` : ""} />
+                              <ContactRow icon={MessageCircle} label="WhatsApp" value={e.whatsapp} href={e.whatsapp ? `https://wa.me/${e.whatsapp.replace(/\D/g, "")}` : ""} />
+                              <ContactRow icon={Globe} label="Sitio web" value={e.website} href={e.website || ""} />
+                              <ContactRow icon={Facebook} label="Facebook" value={e.facebook} href={e.facebook ? (e.facebook.startsWith("http") ? e.facebook : `https://facebook.com/${e.facebook}`) : ""} />
+                              <ContactRow icon={Instagram} label="Instagram" value={e.instagram} href={e.instagram ? (e.instagram.startsWith("http") ? e.instagram : `https://instagram.com/${e.instagram.replace("@", "")}`) : ""} />
+                              <ContactRow icon={MapPin} label="Dirección" value={[e.address, e.city, e.state].filter(Boolean).join(", ") || "—"} />
+                              <div className="md:col-span-2 lg:col-span-3">
+                                <div className="text-xs uppercase tracking-wider text-teal font-bold mb-1">Descripción</div>
+                                <p className="text-teal-soft text-sm leading-relaxed">{e.description || "—"}</p>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </React.Fragment>
                   ))}
                 </tbody>
               </table>

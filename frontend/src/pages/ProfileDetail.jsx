@@ -25,6 +25,10 @@ const ProfileDetail = () => {
   if (error) return <div className="container-tight py-24 text-center text-red-600">{error}</div>;
   if (!biz) return <div className="container-tight py-24 text-center text-teal-soft">Loading…</div>;
 
+  const trackClick = (kind) => {
+    api.post(`/entrepreneurs/${id}/contact-click?kind=${encodeURIComponent(kind)}`).catch(() => {});
+  };
+
   const cat = t.categories[biz.category] || biz.category;
   const socials = [
     { k: "website", url: biz.website, Icon: Globe, label: biz.website },
@@ -78,7 +82,7 @@ const ProfileDetail = () => {
                 {socials.map(({ k, url, Icon, label }) => (
                   <li key={k}>
                     {url ? (
-                      <a href={url} target="_blank" rel="noreferrer" className="inline-flex items-center gap-3 text-teal hover:text-orange transition-colors break-all" data-testid={`profile-${k}`}>
+                      <a href={url} target="_blank" rel="noreferrer" onClick={() => trackClick(k)} className="inline-flex items-center gap-3 text-teal hover:text-orange transition-colors break-all" data-testid={`profile-${k}`}>
                         <span className="w-9 h-9 rounded-full bg-white border border-gray-200 flex items-center justify-center"><Icon size={16} /></span>
                         <span className="text-sm">{label}</span>
                       </a>

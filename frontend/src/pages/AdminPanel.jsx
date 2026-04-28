@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Users, Briefcase, MessageSquare, Star, Download, Trash2, Search, ExternalLink, Eye, MailOpen, ChevronDown, Phone, Mail, Globe, Facebook, Instagram, MessageCircle, MapPin } from "lucide-react";
+import { Users, Briefcase, MessageSquare, Star, Download, Trash2, Search, ExternalLink, Eye, MailOpen, ChevronDown, Phone, Mail, Globe, Facebook, Instagram, MessageCircle, MapPin, MousePointerClick } from "lucide-react";
 import api, { API, formatApiError } from "@/lib/api";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
@@ -190,6 +190,8 @@ const AdminPanel = () => {
             <StatCard icon={MessageSquare} label={t.admin.stats.messages} value={stats.messages} />
             <StatCard icon={MailOpen} label={t.admin.stats.unread} value={stats.unread_messages} color="orange" />
             <StatCard icon={Star} label={t.admin.stats.featured} value={stats.featured} color="orange" />
+            <StatCard icon={Eye} label="Vistas a perfiles" value={stats.total_views || 0} />
+            <StatCard icon={MousePointerClick} label="Clics de contacto" value={stats.total_contact_clicks || 0} color="orange" />
           </div>
         )}
 
@@ -263,6 +265,22 @@ const AdminPanel = () => {
                         <tr className="bg-cream/60 border-b border-gray-100">
                           <td></td>
                           <td colSpan={7} className="px-4 py-5">
+                            <div className="flex items-center gap-6 mb-4 pb-4 border-b border-gray-200">
+                              <div className="flex items-center gap-2">
+                                <span className="w-9 h-9 rounded-full bg-teal text-white flex items-center justify-center"><Eye size={16} /></span>
+                                <div>
+                                  <div className="text-xs uppercase tracking-wider font-bold text-teal">Vistas al perfil</div>
+                                  <div className="font-display text-2xl text-teal-deep leading-none">{e.view_count || 0}</div>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2">
+                                <span className="w-9 h-9 rounded-full bg-orange text-white flex items-center justify-center"><MousePointerClick size={16} /></span>
+                                <div>
+                                  <div className="text-xs uppercase tracking-wider font-bold text-teal">Clics de contacto</div>
+                                  <div className="font-display text-2xl text-teal-deep leading-none">{e.contact_click_count || 0}</div>
+                                </div>
+                              </div>
+                            </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
                               <ContactRow icon={Mail} label="Email" value={e.email} href={e.email ? `mailto:${e.email}` : ""} />
                               <ContactRow icon={Phone} label="Teléfono" value={e.phone} href={e.phone ? `tel:${e.phone}` : ""} />

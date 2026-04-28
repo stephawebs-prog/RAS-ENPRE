@@ -162,8 +162,8 @@ def public_entrepreneur(doc: dict) -> dict:
     keep = ["id", "user_id", "business_name", "owner_name", "category", "description",
             "phone", "city", "state", "country", "address", "website",
             "logo_url", "cover_url", "facebook", "instagram", "twitter", "whatsapp",
-            "created_at", "updated_at", "featured"]
-    return {k: doc.get(k, "") for k in keep}
+            "created_at", "updated_at", "featured", "view_count", "contact_click_count"]
+    return {k: doc.get(k, 0 if k.endswith("_count") else "") for k in keep}
 
 def public_user(doc: dict) -> dict:
     return {
@@ -329,7 +329,37 @@ async def get_entrepreneur(eid: str, current=Depends(get_current_user)):
     doc = await db.entrepreneurs.find_one({"id": eid}, {"_id": 0})
     if not doc:
         raise HTTPException(status_code=404, detail="Entrepreneur not found")
+    # Track profile view (don't track owner viewing own profile)
+    if doc.get("user_id") != current.get("id"):
+        await db.entrepreneurs.update_one({"id": eid}, {"$inc": {"view_count": 1}})
+        await db.profile_views.insert_one({
+            "id": str(uuid.uuid4()),
+            "entrepreneur_id": eid,
+            "viewer_id": current.get("id"),
+            "viewer_email": current.get("email"),
+            "viewer_role": current.get("role"),
+            "created_at": now_iso(),
+        })
+        doc["view_count"] = (doc.get("view_count") or 0) + 1
     return public_entrepreneur(doc)
+
+@api.post("/entrepreneurs/{eid}/contact-click")
+async def track_contact_click(eid: str, kind: str = Query("contact"), current=Depends(get_current_user)):
+    doc = await db.entrepreneurs.find_one({"id": eid}, {"_id": 0, "user_id": 1})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Entrepreneur not found")
+    if doc.get("user_id") == current.get("id"):
+        return {"ok": True, "skipped": "owner"}
+    await db.entrepreneurs.update_one({"id": eid}, {"$inc": {"contact_click_count": 1}})
+    await db.contact_clicks.insert_one({
+        "id": str(uuid.uuid4()),
+        "entrepreneur_id": eid,
+        "kind": kind,  # contact | phone | whatsapp | email | website | facebook | instagram
+        "viewer_id": current.get("id"),
+        "viewer_email": current.get("email"),
+        "created_at": now_iso(),
+    })
+    return {"ok": True}
 
 @api.put("/entrepreneurs/me")
 async def update_my_profile(payload: EntrepreneurUpdate, current=Depends(get_current_user)):
@@ -371,13 +401,25 @@ async def admin_stats(_=Depends(require_admin)):
     total_messages = await db.contact_messages.count_documents({})
     unread = await db.contact_messages.count_documents({"read": False})
     featured = await db.entrepreneurs.count_documents({"featured": True})
+    total_views = await db.profile_views.count_documents({})
+    total_clicks = await db.contact_clicks.count_documents({})
     return {
         "entrepreneurs": total_ents,
         "clients": total_clients,
         "messages": total_messages,
         "unread_messages": unread,
         "featured": featured,
+        "total_views": total_views,
+        "total_contact_clicks": total_clicks,
     }
+
+@api.get("/admin/entrepreneurs/{eid}/activity")
+async def admin_entrepreneur_activity(eid: str, _=Depends(require_admin)):
+    views_cur = db.profile_views.find({"entrepreneur_id": eid}, {"_id": 0}).sort("created_at", -1).limit(200)
+    views = [d async for d in views_cur]
+    clicks_cur = db.contact_clicks.find({"entrepreneur_id": eid}, {"_id": 0}).sort("created_at", -1).limit(200)
+    clicks = [d async for d in clicks_cur]
+    return {"views": views, "clicks": clicks, "view_count": len(views), "click_count": len(clicks)}
 
 @api.get("/admin/entrepreneurs")
 async def admin_list_entrepreneurs(q: Optional[str] = None, _=Depends(require_admin)):
@@ -505,6 +547,9 @@ async def on_startup():
     await db.entrepreneurs.create_index("user_id")
     await db.entrepreneurs.create_index("category")
     await db.entrepreneurs.create_index("city")
+    await db.profile_views.create_index("entrepreneur_id")
+    await db.profile_views.create_index("viewer_id")
+    await db.contact_clicks.create_index("entrepreneur_id")
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@redsolidaridad.com").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@RED2026")
     existing = await db.users.find_one({"email": admin_email})
@@ -525,7 +570,8 @@ async def on_startup():
         )
     count = await db.entrepreneurs.count_documents({})
     if count == 0:
-        await seed_sample_data()
+        # Sample seed disabled — start clean per user request
+        logger.info("entrepreneurs collection is empty (no auto-seed)")
 
 async def seed_sample_data():
     samples = [

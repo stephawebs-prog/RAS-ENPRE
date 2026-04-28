@@ -9,6 +9,7 @@ import logging
 import uuid
 import csv
 import io
+import asyncio
 import bcrypt
 import jwt
 from datetime import datetime, timezone, timedelta
@@ -19,6 +20,8 @@ from fastapi.responses import StreamingResponse
 from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr
+
+from email_service import send_welcome_entrepreneur, send_welcome_client
 
 # ---------------- Setup ----------------
 mongo_url = os.environ['MONGO_URL']
@@ -235,6 +238,11 @@ async def auth_register_entrepreneur(payload: RegisterEntrepreneurIn, response: 
     await db.entrepreneurs.insert_one(profile)
     token = create_access_token(uid, email, "entrepreneur")
     set_auth_cookie(response, token)
+    # Welcome email (fire-and-forget; never block registration)
+    try:
+        asyncio.create_task(send_welcome_entrepreneur(email, payload.business_name.strip(), payload.owner_name.strip()))
+    except Exception as e:
+        logger.error("welcome_entrepreneur dispatch failed: %s", e)
     return {
         "user": public_user(user_doc),
         "profile": public_entrepreneur(profile),
@@ -263,6 +271,10 @@ async def auth_register_client(payload: RegisterClientIn, response: Response):
     await db.users.insert_one(user_doc)
     token = create_access_token(uid, email, "client")
     set_auth_cookie(response, token)
+    try:
+        asyncio.create_task(send_welcome_client(email, payload.full_name.strip()))
+    except Exception as e:
+        logger.error("welcome_client dispatch failed: %s", e)
     return {"user": public_user(user_doc), "access_token": token}
 
 @api.post("/auth/login")

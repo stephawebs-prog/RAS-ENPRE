@@ -3,7 +3,7 @@ const dict = {
   en: {
     nav: {
       home: "Home", directory: "Directory", about: "About", contact: "Contact",
-      login: "Log in", register: "Join the RED",
+      login: "Log in", register: "Register business or profession",
       dashboard: "Dashboard", admin: "Admin", logout: "Log out",
     },
     topbar: {
@@ -171,7 +171,7 @@ const dict = {
   es: {
     nav: {
       home: "Inicio", directory: "Directorio", about: "Nosotros", contact: "Contacto",
-      login: "Iniciar sesión", register: "Únete a la RED",
+      login: "Iniciar sesión", register: "Registrarme con mi emprendimiento o profesión",
       dashboard: "Panel", admin: "Admin", logout: "Cerrar sesión",
     },
     topbar: {

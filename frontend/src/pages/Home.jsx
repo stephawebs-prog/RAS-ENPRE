@@ -19,12 +19,13 @@ const Hero = () => {
       <div className="relative container-tight py-28 md:py-40 text-white">
         <div className="max-w-4xl fade-up">
           <p className="eyebrow text-orange mb-5" data-testid="hero-eyebrow">{t.hero.eyebrow}</p>
-          <h1 className="font-display text-5xl sm:text-6xl md:text-7xl leading-[1.1] tracking-tight">
-            {t.hero.titleLines.map((line, i) => (
-              <span key={line} className="block">{line}</span>
-            ))}
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] tracking-tight">
+            {t.hero.title}
           </h1>
-          <p className="mt-7 text-lg md:text-xl text-white/85 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
+          <p className="mt-6 font-display text-2xl md:text-3xl text-orange leading-snug tracking-tight">
+            {t.hero.tagline}
+          </p>
+          <p className="mt-6 text-base md:text-lg text-white/85 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link to="/register" className="btn-orange" data-testid="hero-cta-register">
               {t.hero.ctaPrimary} <ArrowRight size={16} />

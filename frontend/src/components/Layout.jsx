@@ -94,7 +94,7 @@ export const Navbar = () => {
               <Link to="/login" className="text-teal hover:text-orange text-sm font-semibold uppercase tracking-wider" data-testid="nav-login">
                 {t.nav.login}
               </Link>
-              <Link to="/register/business" className="btn-orange" data-testid="nav-register">{t.nav.register}</Link>
+              <Link to="/register" className="btn-orange" data-testid="nav-register">{t.nav.register}</Link>
             </>
           )}
         </div>
@@ -120,7 +120,7 @@ export const Navbar = () => {
             ) : (
               <>
                 <Link to="/login" className="text-teal text-sm font-semibold uppercase tracking-wider" onClick={() => setOpen(false)}>{t.nav.login}</Link>
-                <Link to="/register/business" className="btn-orange w-fit" onClick={() => setOpen(false)}>{t.nav.register}</Link>
+                <Link to="/register" className="btn-orange w-fit" onClick={() => setOpen(false)}>{t.nav.register}</Link>
               </>
             )}
           </div>

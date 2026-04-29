@@ -106,9 +106,9 @@ const dict = {
       // Choice
       chooseTitle: "How will you join the RED?",
       chooseSub: "Pick how you want to participate. You can always switch later.",
-      asClient: "Register as Client",
+      asClient: "Register as a client",
       asClientDesc: "Find trusted businesses, connect with the community.",
-      asEntrepreneur: "Register as Entrepreneur",
+      asEntrepreneur: "Register my business or profession",
       asEntrepreneurDesc: "Get a public profile and reach more clients.",
       // Entrepreneur multi-step
       registerTitle: "Register your business", registerSub: "Free profile in 3 quick steps.",
@@ -271,9 +271,9 @@ const dict = {
       goDashboard: "Ir al panel", goDirectory: "Ver directorio",
       chooseTitle: "¿Cómo te unes a la RED?",
       chooseSub: "Elige cómo quieres participar. Puedes cambiar después.",
-      asClient: "Registrarme como Cliente",
+      asClient: "Registrarme como cliente",
       asClientDesc: "Encuentra negocios de confianza y conéctate con la comunidad.",
-      asEntrepreneur: "Registrar mi Empresa",
+      asEntrepreneur: "Registrarme con mi emprendimiento o profesión",
       asEntrepreneurDesc: "Obtén un perfil público y consigue más clientes.",
       registerTitle: "Registra tu empresa", registerSub: "Perfil gratuito en 3 pasos rápidos.",
       step1: "Cuenta", step2: "Negocio", step3: "Marca y Redes",

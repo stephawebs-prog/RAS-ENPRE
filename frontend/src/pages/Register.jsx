@@ -4,11 +4,15 @@ import { ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
 import { formatApiError } from "@/lib/api";
+import LocationSelect from "@/components/LocationSelect";
+import PhoneInput from "@/components/PhoneInput";
 
 const blank = {
-  email: "", password: "",
+  email: "", password: "", password2: "",
   business_name: "", owner_name: "", category: "other", description: "",
-  phone: "", city: "", state: "", country: "USA", address: "",
+  phoneDialCode: "+1", phoneNumber: "",
+  country: "", state: "", city: "",
+  address: "",
   website: "", logo_url: "", cover_url: "",
   facebook: "", instagram: "", twitter: "", whatsapp: "",
   source: "",
@@ -30,8 +34,8 @@ const Register = () => {
   const categoryKeys = useMemo(() => Object.keys(t.categories), [t]);
 
   const stepValid = () => {
-    if (step === 0) return form.email && form.password.length >= 6;
-    if (step === 1) return form.business_name && form.owner_name && form.category && form.description.length >= 10 && form.phone && form.city;
+    if (step === 0) return form.email && form.password.length >= 6 && form.password === form.password2;
+    if (step === 1) return form.business_name && form.owner_name && form.category && form.description.length >= 10 && form.phoneNumber && form.country && form.city;
     return true;
   };
 
@@ -104,9 +108,16 @@ const Register = () => {
                   <input type="email" required className="field-input mt-1" value={form.email} onChange={set("email")} data-testid="reg-email" />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.password}</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.createPassword}</label>
                   <input type="password" required minLength={6} className="field-input mt-1" value={form.password} onChange={set("password")} data-testid="reg-password" />
                   <p className="text-xs text-teal-soft mt-1">min 6 characters</p>
+                </div>
+                <div>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.confirmPassword}</label>
+                  <input type="password" required minLength={6} className="field-input mt-1" value={form.password2} onChange={set("password2")} data-testid="reg-password2" />
+                  {form.password2 && form.password !== form.password2 && (
+                    <p className="text-xs text-red-600 mt-1">{t.fields.passwordsDoNotMatch}</p>
+                  )}
                 </div>
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.source}</label>
@@ -141,24 +152,19 @@ const Register = () => {
                   <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.description}</label>
                   <textarea required rows={4} minLength={10} className="field-input mt-1" placeholder={t.fields.placeholders.description} value={form.description} onChange={set("description")} data-testid="reg-description" />
                 </div>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.phone}</label>
-                    <input required className="field-input mt-1" value={form.phone} onChange={set("phone")} data-testid="reg-phone" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.city}</label>
-                    <input required className="field-input mt-1" value={form.city} onChange={set("city")} data-testid="reg-city" />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.state}</label>
-                    <input className="field-input mt-1" value={form.state} onChange={set("state")} />
-                  </div>
-                  <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.country}</label>
-                    <input className="field-input mt-1" value={form.country} onChange={set("country")} />
-                  </div>
-                </div>
+
+                <PhoneInput
+                  label={t.fields.phone}
+                  value={{ dialCode: form.phoneDialCode, number: form.phoneNumber }}
+                  onChange={(v) => setForm({ ...form, phoneDialCode: v.dialCode, phoneNumber: v.number })}
+                />
+
+                <LocationSelect
+                  labels={{ country: t.fields.country, state: t.fields.state, city: t.fields.city }}
+                  value={{ country: form.country, state: form.state, city: form.city }}
+                  onChange={(loc) => setForm({ ...form, ...loc })}
+                />
+
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.address}</label>
                   <input className="field-input mt-1" value={form.address} onChange={set("address")} />
@@ -210,6 +216,27 @@ const Register = () => {
               </button>
               {step < 2 ? (
                 <button type="button" onClick={next} disabled={!stepValid()} className={`btn-orange ${!stepValid() ? "opacity-50 cursor-not-allowed" : ""}`} data-testid="reg-next">
+                  {t.auth.next} <ArrowRight size={14} />
+                </button>
+              ) : (
+                <button type="submit" disabled={loading} className="btn-orange" data-testid="reg-submit">
+                  {loading ? "…" : t.auth.submit} <ArrowRight size={14} />
+                </button>
+              )}
+            </div>
+          </form>
+
+          <p className="text-sm text-teal-soft mt-6 text-center">
+            {t.auth.hasAccount} <Link to="/login" className="text-orange font-bold hover:underline">{t.auth.loginLink}</Link>
+          </p>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+export default Register;
+" : ""}`} data-testid="reg-next">
                   {t.auth.next} <ArrowRight size={14} />
                 </button>
               ) : (

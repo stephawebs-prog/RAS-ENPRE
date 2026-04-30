@@ -126,10 +126,12 @@ const dict = {
       sources: { Roxxi: "Roxxi", TRC: "TRC", UMAPT: "UMAPT", Google: "Google", Social: "Social media", Other: "Other" },
     },
     fields: {
-      businessName: "Business name", ownerName: "Owner / contact name", fullName: "Full name",
+      businessName: "Business / profession name", ownerName: "Owner / contact name", fullName: "Full name",
       category: "Category", description: "Short description",
-      phone: "Phone", city: "City", state: "State", country: "Country",
+      phone: "Mobile", city: "City", state: "State / Province", country: "Country",
       address: "Address (optional)", website: "Website",
+      createPassword: "Create your password", confirmPassword: "Confirm your password",
+      passwordsDoNotMatch: "Passwords do not match",
       logoUrl: "Logo URL", coverUrl: "Cover image URL",
       facebook: "Facebook", instagram: "Instagram", twitter: "X / Twitter", whatsapp: "WhatsApp",
       placeholders: {
@@ -292,8 +294,10 @@ const dict = {
     fields: {
       businessName: "Nombre de tu emprendimiento", ownerName: "Nombre del dueño / contacto", fullName: "Nombre completo",
       category: "Categoría", description: "Descripción breve",
-      phone: "Teléfono", city: "Ciudad", state: "Estado", country: "País",
+      phone: "Celular", city: "Ciudad", state: "Estado / Provincia", country: "País",
       address: "Dirección (opcional)", website: "Sitio web",
+      createPassword: "Crea tu contraseña", confirmPassword: "Confirmar contraseña",
+      passwordsDoNotMatch: "Las contraseñas no coinciden",
       logoUrl: "URL del logo", coverUrl: "URL de imagen de portada",
       facebook: "Facebook", instagram: "Instagram", twitter: "X / Twitter", whatsapp: "WhatsApp",
       placeholders: {

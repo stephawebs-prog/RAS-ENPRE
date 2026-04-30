@@ -4,16 +4,21 @@ import { ArrowRight, CheckCircle2 } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
 import api, { formatApiError } from "@/lib/api";
+import LocationSelect from "@/components/LocationSelect";
+import PhoneInput from "@/components/PhoneInput";
 
 const blank = {
-  email: "", password: "", full_name: "", phone: "", city: "", state: "", interests: [], source: "",
+  email: "", password: "", password2: "", full_name: "",
+  phoneDialCode: "+1", phoneNumber: "",
+  country: "", state: "", city: "",
+  interests: [], source: "",
 };
 
 const SOURCE_KEYS = ["Roxxi", "TRC", "UMAPT", "Google", "Social", "Other"];
 
 const RegisterClient = () => {
   const { t } = useI18n();
-  const { setProfile, login } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState(blank);
   const [loading, setLoading] = useState(false);
@@ -31,12 +36,20 @@ const RegisterClient = () => {
 
   const submit = async (e) => {
     e.preventDefault();
+    if (form.password !== form.password2) {
+      setError(t.fields.passwordsDoNotMatch); return;
+    }
     setError(""); setLoading(true);
     try {
-      const { data } = await api.post("/auth/register-client", form);
+      const payload = {
+        email: form.email, password: form.password,
+        full_name: form.full_name,
+        phone: `${form.phoneDialCode}${form.phoneNumber}`,
+        city: form.city, state: form.state,
+        interests: form.interests, source: form.source,
+      };
+      const { data } = await api.post("/auth/register-client", payload);
       if (data.access_token) localStorage.setItem("red.token", data.access_token);
-      // refresh auth state by calling login flow context (we already have token)
-      // Use the AuthContext setters via a quick login round-trip
       try { await login(form.email, form.password); } catch (_) {}
       setDone(true);
     } catch (err) { setError(formatApiError(err)); }
@@ -78,23 +91,33 @@ const RegisterClient = () => {
                 <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.email}</label>
                 <input type="email" required className="field-input mt-1" value={form.email} onChange={set("email")} data-testid="client-email" />
               </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.password}</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.createPassword}</label>
                 <input type="password" required minLength={6} className="field-input mt-1" value={form.password} onChange={set("password")} data-testid="client-password" />
               </div>
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.phone}</label>
-                <input required className="field-input mt-1" value={form.phone} onChange={set("phone")} data-testid="client-phone" />
-              </div>
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.city}</label>
-                <input required className="field-input mt-1" value={form.city} onChange={set("city")} data-testid="client-city" />
-              </div>
-              <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.state}</label>
-                <input className="field-input mt-1" value={form.state} onChange={set("state")} />
+                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.confirmPassword}</label>
+                <input type="password" required minLength={6} className="field-input mt-1" value={form.password2} onChange={set("password2")} data-testid="client-password2" />
+                {form.password2 && form.password !== form.password2 && (
+                  <p className="text-xs text-red-600 mt-1">{t.fields.passwordsDoNotMatch}</p>
+                )}
               </div>
             </div>
+
+            <PhoneInput
+              label={t.fields.phone}
+              value={{ dialCode: form.phoneDialCode, number: form.phoneNumber }}
+              onChange={(v) => setForm({ ...form, phoneDialCode: v.dialCode, phoneNumber: v.number })}
+            />
+
+            <LocationSelect
+              labels={{ country: t.fields.country, state: t.fields.state, city: t.fields.city }}
+              value={{ country: form.country, state: form.state, city: form.city }}
+              onChange={(loc) => setForm({ ...form, ...loc })}
+            />
 
             <div>
               <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.interests}</label>

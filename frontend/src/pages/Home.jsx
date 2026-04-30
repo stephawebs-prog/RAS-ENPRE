@@ -17,12 +17,12 @@ const Hero = () => {
         <div className="absolute inset-0 hero-overlay" />
       </div>
       <div className="relative container-tight py-28 md:py-40 text-white">
-        <div className="max-w-4xl fade-up">
+        <div className="max-w-6xl mx-auto text-center fade-up">
           <span className="inline-flex items-center gap-2 bg-orange/90 backdrop-blur text-white rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.22em] mb-6 shadow-lg shadow-orange/30" data-testid="hero-eyebrow">
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
             {t.hero.eyebrow}
           </span>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] tracking-tight drop-shadow-lg font-bold">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] tracking-tight drop-shadow-lg font-bold max-w-5xl mx-auto">
             {t.hero.title}
           </h1>
           <div className="mt-8 space-y-1">
@@ -41,8 +41,8 @@ const Hero = () => {
               </div>
             ))}
           </div>
-          <p className="mt-7 text-base md:text-lg text-white/90 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
-          <div className="mt-10 flex flex-wrap items-center gap-4">
+          <p className="mt-7 text-base md:text-lg text-white/90 max-w-2xl mx-auto leading-relaxed">{t.hero.subtitle}</p>
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-4">
             <Link to="/register" className="btn-orange" data-testid="hero-cta-register">
               {t.hero.ctaPrimary} <ArrowRight size={16} />
             </Link>

@@ -22,13 +22,26 @@ const Hero = () => {
             <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
             {t.hero.eyebrow}
           </span>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] tracking-tight drop-shadow-lg">
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] tracking-tight drop-shadow-lg font-bold">
             {t.hero.title}
           </h1>
-          <p className="mt-6 font-display text-2xl md:text-3xl text-orange leading-snug tracking-tight drop-shadow-md">
-            {t.hero.tagline}
-          </p>
-          <p className="mt-6 text-base md:text-lg text-white/90 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
+          <div className="mt-8 space-y-1">
+            {t.hero.taglineParts.map((part) => (
+              <div
+                key={part}
+                className="font-display text-3xl sm:text-4xl md:text-5xl leading-[1.1] tracking-tight"
+                style={{
+                  fontWeight: 900,
+                  color: "#FFB47A",
+                  textShadow: "0 3px 14px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.5)",
+                  WebkitTextStroke: "0.3px rgba(255,255,255,0.15)",
+                }}
+              >
+                {part}
+              </div>
+            ))}
+          </div>
+          <p className="mt-7 text-base md:text-lg text-white/90 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link to="/register" className="btn-orange" data-testid="hero-cta-register">
               {t.hero.ctaPrimary} <ArrowRight size={16} />

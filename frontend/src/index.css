@@ -132,7 +132,7 @@ body {
 .biz-card:hover { transform: translateY(-4px); border-color: #1F4E47; box-shadow: 0 16px 40px rgba(17,42,38,0.10); }
 
 /* hero overlay */
-.hero-overlay { background: linear-gradient(180deg, rgba(31,78,71,0.35), rgba(31,78,71,0.65)); }
+.hero-overlay { background: linear-gradient(135deg, rgba(31,78,71,0.72) 0%, rgba(31,78,71,0.45) 55%, rgba(233,122,58,0.35) 100%); }
 
 /* utility */
 .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }

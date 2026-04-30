@@ -5,7 +5,7 @@ import { useI18n } from "@/i18n/I18nContext";
 import { BusinessCard } from "@/components/Cards";
 import api, { formatApiError } from "@/lib/api";
 
-const HERO_BG = "https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=2400&q=80&auto=format&fit=crop";
+const HERO_BG = "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=2400&q=85&auto=format&fit=crop";
 const ABOUT_IMG = "https://images.pexels.com/photos/3892902/pexels-photo-3892902.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940";
 
 const Hero = () => {
@@ -18,14 +18,17 @@ const Hero = () => {
       </div>
       <div className="relative container-tight py-28 md:py-40 text-white">
         <div className="max-w-4xl fade-up">
-          <p className="eyebrow text-orange mb-5" data-testid="hero-eyebrow">{t.hero.eyebrow}</p>
-          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] tracking-tight">
+          <span className="inline-flex items-center gap-2 bg-orange/90 backdrop-blur text-white rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-[0.22em] mb-6 shadow-lg shadow-orange/30" data-testid="hero-eyebrow">
+            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse"></span>
+            {t.hero.eyebrow}
+          </span>
+          <h1 className="font-display text-4xl sm:text-5xl md:text-6xl leading-[1.1] tracking-tight drop-shadow-lg">
             {t.hero.title}
           </h1>
-          <p className="mt-6 font-display text-2xl md:text-3xl text-orange leading-snug tracking-tight">
+          <p className="mt-6 font-display text-2xl md:text-3xl text-orange leading-snug tracking-tight drop-shadow-md">
             {t.hero.tagline}
           </p>
-          <p className="mt-6 text-base md:text-lg text-white/85 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
+          <p className="mt-6 text-base md:text-lg text-white/90 max-w-2xl leading-relaxed">{t.hero.subtitle}</p>
           <div className="mt-10 flex flex-wrap items-center gap-4">
             <Link to="/register" className="btn-orange" data-testid="hero-cta-register">
               {t.hero.ctaPrimary} <ArrowRight size={16} />

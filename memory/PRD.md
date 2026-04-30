@@ -58,21 +58,31 @@
 ## Test credentials
 See `/app/memory/test_credentials.md`
 
-## Known minor items
-- CORS uses `allow_origins=['*']` + credentials → cookies dropped cross-origin in browsers; Bearer token flow works fine.
-- `/api/auth/me` returns 401 before login (expected) — frontend handles silently.
-- Multi-step entrepreneur form select needs 300ms settle in Playwright tests (not a real bug).
+## Iteration 4 — 2026-04-30
+### Frontend
+- Restored colored choice cards on `/register`: solid orange (Usuario) + solid teal-deep (Emprendimiento)
+- Priority countries (US, CO, MX, HN, SV) at top of country dropdowns (entrepreneur + client + phone-input)
+- Step 3 of entrepreneur registration: Logo + Cover image upload via Base64 (max 800KB), all fields explicitly optional with note
+- New optional social fields: LinkedIn, TikTok, YouTube (Es/En i18n added)
+- **Fixed CRITICAL bug**: Step 1 → Step 2 transition was auto-submitting the form (jumped straight to success page). Root cause: `<form onSubmit>` could be triggered by Enter key or stale step closure during state batching. Fix: form's onSubmit is now a pure preventDefault, advancement happens only via Next button onClick, real registration only via the explicit Submit button on Step 3 (with a `stepRef` hard guard).
+- Phone is correctly combined `{dialCode} {number}` into the single `phone` field expected by the backend (entrepreneur form was missing this; now fixed)
+
+### Backend
+- `RegisterEntrepreneurIn` model + endpoint accept `linkedin`, `tiktok`, `youtube`, `logo_url`, `cover_url` (Optional[str])
+
+### Testing
+- Backend pytest: 5 new test cases for new fields PASS (iter3) + previous 40 still green
+- Frontend E2E (Playwright self-test by main agent): full multi-step entrepreneur registration flow now reaches Step 3 and submits successfully — verified entrepreneur saved with combined phone `+1 5551234567`, country `US`, city `Los Angeles`
 
 ## Backlog / Next iterations
-- **P1**: Image uploads (currently URL-only) — integrate file upload to avoid users pasting URLs.
-- **P1**: Email notifications on new contact messages (SendGrid/Resend) and welcome email on register.
-- **P2**: Admin: edit entrepreneur profile inline (currently only feature/delete).
-- **P2**: Entrepreneur reviews/ratings from clients.
-- **P2**: Entrepreneur "View count" analytics in dashboard.
-- **P2**: Map view in directory (Leaflet/Mapbox by city).
-- **P2**: Forgot password flow.
-- **P3**: WhatsApp button click-tracking & lead-handoff.
-- **P3**: Featured plan / paid promotion (Stripe).
+- **P1**: Forgot Password flow via Resend (email reset link)
+- **P1**: Resend domain verification (currently only delivers to stephawebs@gmail.com — testing mode)
+- **P2**: Refactor `Register.jsx` (split each step into its own sub-component for maintainability)
+- **P2**: Admin: edit entrepreneur profile inline
+- **P2**: Entrepreneur reviews/ratings from clients
+- **P2**: Map view in directory (Leaflet by city)
+- **P3**: WhatsApp button click-tracking & lead-handoff
+- **P3**: Featured plan / paid promotion (Stripe)
 
 ## Deployment
 - Native Emergent Deploy (recommended) — 1-click, includes MongoDB.

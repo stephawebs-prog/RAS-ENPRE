@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { ArrowRight, ArrowLeft, CheckCircle2, PartyPopper } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
@@ -27,6 +27,7 @@ const Register = () => {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [step, setStep] = useState(0);
+  const stepRef = useRef(0);
   const [form, setForm] = useState(blank);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
@@ -41,19 +42,21 @@ const Register = () => {
     return true;
   };
 
-  const next = () => { if (stepValid()) setStep((s) => Math.min(s + 1, 2)); };
-  const back = () => setStep((s) => Math.max(s - 1, 0));
+  const goToStep = (n) => {
+    stepRef.current = n;
+    setStep(n);
+  };
+  const next = () => { if (stepValid()) goToStep(Math.min(step + 1, 2)); };
+  const back = () => goToStep(Math.max(step - 1, 0));
 
-  const submit = async (e) => {
-    e.preventDefault();
-    // Guard: if not on final step, only advance to next step (prevents Enter-to-submit bugs)
-    if (step < 2) {
-      if (stepValid()) setStep((s) => s + 1);
-      return;
-    }
+  // Prevent ANY accidental form submission (Enter key, etc.) — submit only runs via the explicit button onClick on step 2.
+  const handleFormSubmit = (e) => { e.preventDefault(); };
+
+  const handleSubmitClick = async () => {
+    // Hard guard: only allow real submission when stepRef is at the final step
+    if (stepRef.current !== 2) return;
     setError(""); setLoading(true);
     try {
-      // Combine dial code + number into the `phone` field expected by the backend
       const { phoneCountry, phoneDialCode, phoneNumber, ...rest } = form;
       const payload = {
         ...rest,
@@ -63,8 +66,7 @@ const Register = () => {
       setDone(true);
     } catch (err) {
       setError(formatApiError(err));
-      // jump back to step that has the error
-      if (String(err?.response?.data?.detail || "").toLowerCase().includes("email")) setStep(0);
+      if (String(err?.response?.data?.detail || "").toLowerCase().includes("email")) goToStep(0);
     } finally { setLoading(false); }
   };
 
@@ -119,7 +121,7 @@ const Register = () => {
 
           <div className="mt-8"><StepHeader /></div>
 
-          <form onSubmit={submit} className="space-y-5" data-testid="register-form">
+          <form onSubmit={handleFormSubmit} className="space-y-5" data-testid="register-form" noValidate>
             {step === 0 && (
               <>
                 <div>
@@ -263,7 +265,7 @@ const Register = () => {
                   {t.auth.next} <ArrowRight size={14} />
                 </button>
               ) : (
-                <button type="submit" disabled={loading} className="btn-orange" data-testid="reg-submit">
+                <button type="button" onClick={handleSubmitClick} disabled={loading} className="btn-orange" data-testid="reg-submit">
                   {loading ? "…" : t.auth.submit} <ArrowRight size={14} />
                 </button>
               )}

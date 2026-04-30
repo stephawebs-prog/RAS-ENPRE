@@ -1,20 +1,22 @@
 import React, { useState, useMemo } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ArrowRight, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, CheckCircle2, PartyPopper } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
 import { formatApiError } from "@/lib/api";
 import LocationSelect from "@/components/LocationSelect";
 import PhoneInput from "@/components/PhoneInput";
+import ImageUpload from "@/components/ImageUpload";
 
 const blank = {
   email: "", password: "", password2: "",
   business_name: "", owner_name: "", category: "other", description: "",
-  phoneDialCode: "+1", phoneNumber: "",
+  phoneCountry: "US", phoneDialCode: "+1", phoneNumber: "",
   country: "", state: "", city: "",
   address: "",
   website: "", logo_url: "", cover_url: "",
   facebook: "", instagram: "", twitter: "", whatsapp: "",
+  linkedin: "", tiktok: "", youtube: "",
   source: "",
 };
 
@@ -51,7 +53,13 @@ const Register = () => {
     }
     setError(""); setLoading(true);
     try {
-      await register(form);
+      // Combine dial code + number into the `phone` field expected by the backend
+      const { phoneCountry, phoneDialCode, phoneNumber, ...rest } = form;
+      const payload = {
+        ...rest,
+        phone: `${phoneDialCode || ""} ${phoneNumber || ""}`.trim(),
+      };
+      await register(payload);
       setDone(true);
     } catch (err) {
       setError(formatApiError(err));
@@ -62,13 +70,24 @@ const Register = () => {
 
   if (done) {
     return (
-      <section className="min-h-[80vh] bg-cream flex items-center justify-center py-20">
-        <div className="max-w-lg w-full bg-white rounded-3xl shadow-xl border border-gray-200 p-10 text-center">
-          <CheckCircle2 className="text-orange mx-auto" size={56} />
-          <h1 className="font-display text-4xl text-teal-deep mt-4 leading-tight" data-testid="register-success">{t.auth.successTitle}</h1>
-          <p className="text-teal-soft mt-3">{t.auth.successSub}</p>
-          <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
-            <button onClick={() => navigate("/dashboard")} className="btn-orange">{t.auth.goDashboard}</button>
+      <section className="min-h-[80vh] bg-gradient-to-br from-cream via-orange/10 to-teal/10 flex items-center justify-center py-20">
+        <div className="max-w-xl w-full bg-white rounded-3xl shadow-2xl border-2 border-orange p-12 text-center fade-up">
+          <div className="inline-flex items-center justify-center w-24 h-24 rounded-full bg-orange shadow-lg shadow-orange/30 mb-6">
+            <PartyPopper className="text-white" size={42} />
+          </div>
+          <p className="eyebrow text-orange mb-2">¡Registro completo!</p>
+          <h1 className="font-display text-4xl md:text-5xl text-teal-deep leading-tight" data-testid="register-success">{t.auth.successTitle}</h1>
+          <p className="text-teal-soft text-lg mt-4">{t.auth.successSub}</p>
+          <div className="mt-8 inline-flex items-center gap-3 bg-teal/10 text-teal-deep rounded-full px-5 py-2 text-sm font-semibold">
+            <CheckCircle2 size={18} className="text-teal" /> Tu perfil ya está activo en el directorio
+          </div>
+          <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+            <button onClick={() => navigate("/dashboard")} className="btn-orange" data-testid="success-go-dashboard">
+              {t.auth.goDashboard} <ArrowRight size={14} />
+            </button>
+            <button onClick={() => navigate("/directory")} className="btn-teal-outline">
+              {t.auth.goDirectory}
+            </button>
           </div>
         </div>
       </section>
@@ -155,8 +174,8 @@ const Register = () => {
 
                 <PhoneInput
                   label={t.fields.phone}
-                  value={{ dialCode: form.phoneDialCode, number: form.phoneNumber }}
-                  onChange={(v) => setForm({ ...form, phoneDialCode: v.dialCode, phoneNumber: v.number })}
+                  value={{ country: form.phoneCountry, dialCode: form.phoneDialCode, number: form.phoneNumber }}
+                  onChange={(v) => setForm({ ...form, phoneCountry: v.country, phoneDialCode: v.dialCode, phoneNumber: v.number })}
                 />
 
                 <LocationSelect
@@ -174,19 +193,32 @@ const Register = () => {
 
             {step === 2 && (
               <>
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.logoUrl}</label>
-                  <input className="field-input mt-1" placeholder={t.fields.placeholders.logoUrl} value={form.logo_url} onChange={set("logo_url")} data-testid="reg-logo-url" />
-                  {form.logo_url && <img src={form.logo_url} alt="" className="mt-3 w-20 h-20 rounded-full object-cover border-2 border-white shadow" />}
+                <div className="bg-orange/10 border-l-4 border-orange rounded-lg px-4 py-3">
+                  <p className="text-sm text-teal-deep font-semibold">✨ {t.fields.step3OptionalNote}</p>
                 </div>
-                <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.coverUrl}</label>
-                  <input className="field-input mt-1" placeholder={t.fields.placeholders.coverUrl} value={form.cover_url} onChange={set("cover_url")} />
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <ImageUpload
+                    label={t.fields.logoUrl}
+                    value={form.logo_url}
+                    onChange={(v) => setForm({ ...form, logo_url: v })}
+                    aspect="square"
+                    testid="reg-logo-upload"
+                  />
+                  <ImageUpload
+                    label={t.fields.coverUrl}
+                    value={form.cover_url}
+                    onChange={(v) => setForm({ ...form, cover_url: v })}
+                    aspect="wide"
+                    testid="reg-cover-upload"
+                  />
                 </div>
+
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.website}</label>
-                  <input className="field-input mt-1" value={form.website} onChange={set("website")} />
+                  <input className="field-input mt-1" placeholder="https://…" value={form.website} onChange={set("website")} />
                 </div>
+
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.facebook}</label>
@@ -197,12 +229,24 @@ const Register = () => {
                     <input className="field-input mt-1" value={form.instagram} onChange={set("instagram")} />
                   </div>
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.twitter}</label>
-                    <input className="field-input mt-1" value={form.twitter} onChange={set("twitter")} />
+                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.linkedin}</label>
+                    <input className="field-input mt-1" value={form.linkedin} onChange={set("linkedin")} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.tiktok}</label>
+                    <input className="field-input mt-1" value={form.tiktok} onChange={set("tiktok")} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.youtube}</label>
+                    <input className="field-input mt-1" value={form.youtube} onChange={set("youtube")} />
                   </div>
                   <div>
                     <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.whatsapp}</label>
                     <input className="field-input mt-1" value={form.whatsapp} onChange={set("whatsapp")} />
+                  </div>
+                  <div>
+                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.twitter}</label>
+                    <input className="field-input mt-1" value={form.twitter} onChange={set("twitter")} />
                   </div>
                 </div>
               </>
@@ -216,27 +260,6 @@ const Register = () => {
               </button>
               {step < 2 ? (
                 <button type="button" onClick={next} disabled={!stepValid()} className={`btn-orange ${!stepValid() ? "opacity-50 cursor-not-allowed" : ""}`} data-testid="reg-next">
-                  {t.auth.next} <ArrowRight size={14} />
-                </button>
-              ) : (
-                <button type="submit" disabled={loading} className="btn-orange" data-testid="reg-submit">
-                  {loading ? "…" : t.auth.submit} <ArrowRight size={14} />
-                </button>
-              )}
-            </div>
-          </form>
-
-          <p className="text-sm text-teal-soft mt-6 text-center">
-            {t.auth.hasAccount} <Link to="/login" className="text-orange font-bold hover:underline">{t.auth.loginLink}</Link>
-          </p>
-        </div>
-      </div>
-    </section>
-  );
-};
-
-export default Register;
-" : ""}`} data-testid="reg-next">
                   {t.auth.next} <ArrowRight size={14} />
                 </button>
               ) : (

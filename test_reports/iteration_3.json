@@ -1,0 +1,50 @@
+{
+  "summary": "Iteration 3 verified backend support for new entrepreneur fields (logo_url/cover_url base64, linkedin/tiktok/youtube, combined phone) — all 5 new pytest cases PASS. Frontend: priority countries (US, CO, MX, HN, SV) verified at top of dropdown. State + City dynamic loading verified (US -> 66 states; California -> 1124 cities). HOWEVER, a CRITICAL frontend bug was discovered: clicking 'Siguiente' on Step 1 (Negocio) with valid data jumps directly to the success page, completely skipping Step 3 (Marca y Redes). Users cannot upload logo/cover or fill linkedin/tiktok/youtube/etc. via the UI even though the backend accepts those fields.",
+  "backend_issues": {"critical": [], "minor": []},
+  "frontend_issues": {
+    "ui_bugs": [
+      {
+        "component": "Register.jsx (Step 1 -> Step 2 transition)",
+        "issue": "Clicking [data-testid=reg-next] from Step 1 (Negocio) with all required fields filled triggers form submission instead of advancing to Step 3 (Marca y Redes). Verified by Playwright: after a single force-click on reg-next, [data-testid=register-success] is visible (count=1) and reg-submit count=0, file-input count=0, logo upload not rendered. The form bypasses Step 3 entirely. This makes the entire optional Step 3 (logo, cover, website, socials including linkedin/tiktok/youtube) UNREACHABLE for the user.",
+        "selector": "[data-testid=\"reg-next\"]",
+        "priority": "CRITICAL"
+      }
+    ],
+    "integration_issues": [
+      {
+        "flow": "Entrepreneur multi-step registration",
+        "issue": "Step 3 is unreachable. As a result, the new ImageUpload (logo_url/cover_url base64) and new social fields (linkedin/tiktok/youtube) added in this iteration are not testable end-to-end via the UI. Backend accepts them (verified via direct API tests).",
+        "affected_selectors": ["reg-next", "reg-logo-upload", "reg-cover-upload", "reg-submit"]
+      }
+    ],
+    "design_issues": []
+  },
+  "test_report_links": [
+    "/app/backend/tests/test_register_new_fields.py",
+    "/app/test_reports/pytest/pytest_results_iter3.xml",
+    "/app/backend/tests/backend_test.py"
+  ],
+  "action_items": [
+    "CRITICAL: Investigate why Step 1 -> Step 2 transition is auto-submitting the form. Hypothesis: in submit() the guard `if (step < 2) { if (stepValid()) setStep(s => s + 1); return; }` uses the *closure-captured* step variable from when the form was created. If the user pressed Enter (or some onChange in PhoneInput / LocationSelect inadvertently submits the form) while the state is being updated, submit() may see step=2 because of state update batching, then proceed to actually register. Recommended fixes: (a) Use a functional state read via ref (stepRef.current) inside submit() to read the latest step, OR (b) use `if (step !== 2)` and rely on form button type='submit' only on final step (already done) AND ensure no input has implicit submit triggers — check PhoneInput.jsx for any button with default type or any form. (c) Add e.preventDefault on every onChange that programmatically advances. (d) Try removing the `<form onSubmit={submit}>` wrapper and instead bind the submit only to the final button to fully eliminate Enter-key submit paths. The bug is reproducible 100% in Playwright by filling Step 0 + Step 1 and clicking the Next button — see playwright trace in this report.",
+    "Investigate PhoneInput.jsx: confirm no nested form, no <button> without type='button'. If the dial-code dropdown is implemented as an HTML <button>, clicking it inside a <form> will submit the form by default.",
+    "Add data-testid to the dial-code button(s) inside PhoneInput so testers can interact, and audit all <button> elements inside Register.jsx for missing type='button'.",
+    "After fix, verify Step 3 reachable via Playwright before merging."
+  ],
+  "critical_code_review_comments": [
+    "Register.jsx submit() guard depends on the `step` value captured by closure. Even though it does `e.preventDefault()`, if `step` is stale during state batching, the function may skip the early-return and call register(). Use a ref or pass step explicitly.",
+    "PhoneInput is wrapped inside <form onSubmit={submit}>. ANY <button> within it that lacks type='button' will trigger form submit on click — this is a very common React form bug and matches the symptom (form submits when interacting with phone or location selectors). PLEASE AUDIT PhoneInput.jsx and LocationSelect.jsx for buttons without explicit type='button'.",
+    "Backend `public_entrepreneur` correctly excludes _id (uses projection {_id:0} on cursor). Good.",
+    "Backend RegisterEntrepreneurIn correctly accepts all new fields as Optional[str] = ''. Verified via 5 pytest cases."
+  ],
+  "updated_files": [
+    "/app/backend/tests/test_register_new_fields.py",
+    "/app/test_reports/iteration_3.json"
+  ],
+  "success_rate": {"backend": "100% (5/5 new cases + iter1 baseline)", "frontend": "60% — priority countries, state/city dynamic, image upload component code exists; but Step 3 is unreachable so logo/cover/new socials are not E2E-testable"},
+  "test_credentials": "Used /app/memory/test_credentials.md: admin@redsolidaridad.com/Admin@RED2026. Created TEST entrepreneurs e2e_new_<ts>@example.com, e2e_min_<ts>@example.com via API; created e2e_t3_<ts>@example.com via UI which DID complete registration (success page) but skipped Step 3.",
+  "seed_data_creation": "3 TEST entrepreneur accounts created during this iteration. Stored in DB but flagged with 'TEST' prefix on business_name for easy cleanup.",
+  "retest_needed": true,
+  "main_agent_can_self_test": false,
+  "context_for_next_testing_agent": "Backend is 100% green. The CRITICAL frontend bug to verify after fix: click reg-next on Step 1 with valid data must advance to Step 3 showing reg-logo-upload + reg-cover-upload + linkedin/tiktok/youtube fields, NOT directly to register-success. Reproduce via Playwright in /app/test_reports/iteration_3.json action_items.",
+  "rca of the issue": "Symptoms: After clicking [data-testid=reg-next] once on Step 1 (Negocio) with all fields valid, the page jumps directly to the success view (register-success visible, count=1). Expected: should advance to Step 3 (Marca y Redes) where reg-submit + 2 file inputs + linkedin/tiktok/youtube/etc. are visible. Likely root causes (in priority order): (1) An inner button inside PhoneInput.jsx or LocationSelect.jsx is missing type='button', so clicking it inside the parent <form> submits the form. Or (2) a child component dispatches a synthetic submit event when its value changes. Mitigation: audit all <button> tags inside the form for `type='button'`; consider removing the wrapping <form onSubmit={submit}> entirely and binding submit to a button onClick handler on the final step only; OR use a stepRef instead of closure-captured `step` so submit() always sees latest step value."
+}

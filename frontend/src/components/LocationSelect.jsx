@@ -1,15 +1,20 @@
 import React, { useMemo, useEffect } from "react";
 import { Country, State, City } from "country-state-city";
 
-/**
- * Cascading country → state → city selects.
- * Props:
- *  - value: { country, state, city } (ISO codes for country/state, string for city)
- *  - onChange: (next) => void
- *  - labels: { country, state, city }
- */
+const PRIORITY_COUNTRY_CODES = ["US", "CO", "MX", "HN", "SV"];
+
 const LocationSelect = ({ value, onChange, labels, required = true, className = "" }) => {
-  const countries = useMemo(() => Country.getAllCountries(), []);
+  const { priority, rest } = useMemo(() => {
+    const all = Country.getAllCountries();
+    const priority = PRIORITY_COUNTRY_CODES
+      .map((code) => all.find((c) => c.isoCode === code))
+      .filter(Boolean);
+    const rest = all
+      .filter((c) => !PRIORITY_COUNTRY_CODES.includes(c.isoCode))
+      .sort((a, b) => a.name.localeCompare(b.name));
+    return { priority, rest };
+  }, []);
+
   const states = useMemo(
     () => (value.country ? State.getStatesOfCountry(value.country) : []),
     [value.country]
@@ -19,7 +24,6 @@ const LocationSelect = ({ value, onChange, labels, required = true, className = 
     [value.country, value.state]
   );
 
-  // Reset child selects when parent changes and child no longer valid
   useEffect(() => {
     if (value.state && !states.find((s) => s.isoCode === value.state)) {
       onChange({ ...value, state: "", city: "" });
@@ -49,9 +53,16 @@ const LocationSelect = ({ value, onChange, labels, required = true, className = 
           data-testid="loc-country"
         >
           <option value="">—</option>
-          {countries.map((c) => (
-            <option key={c.isoCode} value={c.isoCode}>{c.flag} {c.name}</option>
-          ))}
+          <optgroup label="——">
+            {priority.map((c) => (
+              <option key={c.isoCode} value={c.isoCode}>{c.flag} {c.name}</option>
+            ))}
+          </optgroup>
+          <optgroup label="———">
+            {rest.map((c) => (
+              <option key={c.isoCode} value={c.isoCode}>{c.flag} {c.name}</option>
+            ))}
+          </optgroup>
         </select>
       </div>
       <div>

@@ -66,6 +66,9 @@ class RegisterEntrepreneurIn(BaseModel):
     instagram: Optional[str] = ""
     twitter: Optional[str] = ""
     whatsapp: Optional[str] = ""
+    linkedin: Optional[str] = ""
+    tiktok: Optional[str] = ""
+    youtube: Optional[str] = ""
     source: Optional[str] = ""
 
 class RegisterClientIn(BaseModel):
@@ -99,6 +102,9 @@ class EntrepreneurUpdate(BaseModel):
     instagram: Optional[str] = None
     twitter: Optional[str] = None
     whatsapp: Optional[str] = None
+    linkedin: Optional[str] = None
+    tiktok: Optional[str] = None
+    youtube: Optional[str] = None
     featured: Optional[bool] = None
 
 class ContactIn(BaseModel):
@@ -165,6 +171,7 @@ def public_entrepreneur(doc: dict) -> dict:
     keep = ["id", "user_id", "business_name", "owner_name", "category", "description",
             "phone", "city", "state", "country", "address", "website",
             "logo_url", "cover_url", "facebook", "instagram", "twitter", "whatsapp",
+            "linkedin", "tiktok", "youtube",
             "created_at", "updated_at", "featured", "view_count", "contact_click_count"]
     return {k: doc.get(k, 0 if k.endswith("_count") else "") for k in keep}
 
@@ -232,6 +239,9 @@ async def auth_register_entrepreneur(payload: RegisterEntrepreneurIn, response: 
         "instagram": payload.instagram or "",
         "twitter": payload.twitter or "",
         "whatsapp": payload.whatsapp or "",
+        "linkedin": payload.linkedin or "",
+        "tiktok": payload.tiktok or "",
+        "youtube": payload.youtube or "",
         "featured": False,
         "created_at": now_iso(), "updated_at": now_iso(),
     }

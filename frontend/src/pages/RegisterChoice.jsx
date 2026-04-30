@@ -3,30 +3,6 @@ import { Link } from "react-router-dom";
 import { ShoppingBag, Briefcase, ArrowRight, ShieldCheck } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 
-const ChoiceCard = ({ to, icon: Icon, title, desc, cta, accent, testid }) => (
-  <Link
-    to={to}
-    className="group relative bg-white rounded-3xl border border-gray-200 p-8 hover:border-orange transition-all hover:-translate-y-1 hover:shadow-xl overflow-hidden"
-    data-testid={testid}
-  >
-    <span
-      className={`absolute top-0 left-0 w-full h-1.5 ${accent === "teal" ? "bg-teal" : "bg-orange"}`}
-    />
-    <span
-      className={`w-14 h-14 rounded-2xl flex items-center justify-center ${
-        accent === "teal" ? "bg-teal/10 text-teal" : "bg-orange/10 text-orange"
-      }`}
-    >
-      <Icon size={24} />
-    </span>
-    <h2 className="font-display text-2xl md:text-2xl text-teal-deep mt-6 leading-tight">{title}</h2>
-    <p className="text-teal-soft mt-2 text-sm leading-relaxed">{desc}</p>
-    <span className="inline-flex items-center gap-2 mt-6 text-orange font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
-      {cta} <ArrowRight size={14} />
-    </span>
-  </Link>
-);
-
 const RegisterChoice = () => {
   const { t } = useI18n();
   return (
@@ -40,25 +16,40 @@ const RegisterChoice = () => {
           <p className="text-teal-soft text-base mt-3 max-w-xl mx-auto">{t.auth.chooseSub}</p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-5">
-          <ChoiceCard
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Usuario — solid orange */}
+          <Link
             to="/register/client"
-            icon={ShoppingBag}
-            title={t.auth.asClient}
-            desc={t.auth.asClientDesc}
-            cta={t.auth.asClient}
-            accent="teal"
-            testid="choice-client"
-          />
-          <ChoiceCard
+            className="group bg-orange text-white rounded-3xl p-8 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
+            data-testid="choice-client"
+          >
+            <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10"></span>
+            <span className="relative w-14 h-14 rounded-full bg-white text-orange flex items-center justify-center shadow-lg">
+              <ShoppingBag size={22} />
+            </span>
+            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.auth.asClient}</h2>
+            <p className="relative text-white/90 mt-2 text-sm">{t.auth.asClientDesc}</p>
+            <span className="relative inline-flex items-center gap-2 mt-6 text-white font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
+              {t.auth.asClient} <ArrowRight size={14} />
+            </span>
+          </Link>
+
+          {/* Emprendedor — solid teal with orange CTA */}
+          <Link
             to="/register/business"
-            icon={Briefcase}
-            title={t.auth.asEntrepreneur}
-            desc={t.auth.asEntrepreneurDesc}
-            cta={t.auth.asEntrepreneur}
-            accent="orange"
-            testid="choice-business"
-          />
+            className="group bg-teal text-white rounded-3xl p-8 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
+            data-testid="choice-business"
+          >
+            <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-orange/20"></span>
+            <span className="relative w-14 h-14 rounded-full bg-orange text-white flex items-center justify-center shadow-lg shadow-orange/40">
+              <Briefcase size={22} />
+            </span>
+            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.auth.asEntrepreneur}</h2>
+            <p className="relative text-white/80 mt-2 text-sm">{t.auth.asEntrepreneurDesc}</p>
+            <span className="relative inline-flex items-center gap-2 mt-6 text-orange font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
+              {t.auth.asEntrepreneur} <ArrowRight size={14} />
+            </span>
+          </Link>
         </div>
 
         <p className="text-center text-sm text-teal-soft mt-8">

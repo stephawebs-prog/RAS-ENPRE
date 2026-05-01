@@ -4,6 +4,7 @@ import { ExternalLink, Save, LogOut } from "lucide-react";
 import api, { formatApiError } from "@/lib/api";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
+import ImageUpload from "@/components/ImageUpload";
 
 const Dashboard = () => {
   const { t } = useI18n();
@@ -93,20 +94,29 @@ const Dashboard = () => {
                 <Field label={t.fields.website}><input className="field-input" value={form.website || ""} onChange={set("website")} /></Field>
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <Field label={t.fields.logoUrl}>
-                  <input className="field-input" value={form.logo_url || ""} onChange={set("logo_url")} />
-                  {form.logo_url && <img src={form.logo_url} alt="" className="mt-3 w-20 h-20 rounded-full object-cover border-2 border-white shadow" />}
-                </Field>
-                <Field label={t.fields.coverUrl}>
-                  <input className="field-input" value={form.cover_url || ""} onChange={set("cover_url")} />
-                  {form.cover_url && <img src={form.cover_url} alt="" className="mt-3 w-full h-24 rounded-xl object-cover" />}
-                </Field>
+                <ImageUpload
+                  label={t.fields.logoUrl}
+                  value={form.logo_url || ""}
+                  onChange={(v) => setForm({ ...form, logo_url: v })}
+                  aspect="square"
+                  testid="d-logo-upload"
+                />
+                <ImageUpload
+                  label={t.fields.coverUrl}
+                  value={form.cover_url || ""}
+                  onChange={(v) => setForm({ ...form, cover_url: v })}
+                  aspect="wide"
+                  testid="d-cover-upload"
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label={t.fields.facebook}><input className="field-input" value={form.facebook || ""} onChange={set("facebook")} /></Field>
                 <Field label={t.fields.instagram}><input className="field-input" value={form.instagram || ""} onChange={set("instagram")} /></Field>
-                <Field label={t.fields.twitter}><input className="field-input" value={form.twitter || ""} onChange={set("twitter")} /></Field>
+                <Field label={t.fields.linkedin}><input className="field-input" value={form.linkedin || ""} onChange={set("linkedin")} data-testid="d-linkedin" /></Field>
+                <Field label={t.fields.tiktok}><input className="field-input" value={form.tiktok || ""} onChange={set("tiktok")} data-testid="d-tiktok" /></Field>
+                <Field label={t.fields.youtube}><input className="field-input" value={form.youtube || ""} onChange={set("youtube")} data-testid="d-youtube" /></Field>
                 <Field label={t.fields.whatsapp}><input className="field-input" value={form.whatsapp || ""} onChange={set("whatsapp")} /></Field>
+                <Field label={t.fields.twitter}><input className="field-input" value={form.twitter || ""} onChange={set("twitter")} /></Field>
               </div>
 
               {error && <p className="text-red-600 text-sm" data-testid="dashboard-error">{error}</p>}

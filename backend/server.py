@@ -602,9 +602,10 @@ async def list_events(current=Depends(get_current_user)):
 
 @api.get("/events/public")
 async def list_events_public():
-    """Public endpoint — used for landing /eventos page. Returns upcoming events only."""
-    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
-    cursor = db.events.find({"date": {"$gte": today}}, {"_id": 0}).sort("date", 1).limit(200)
+    """Public endpoint — used for landing /eventos page. Returns ALL events
+    sorted by date ascending so users always see something, even if some
+    events are in the past."""
+    cursor = db.events.find({}, {"_id": 0}).sort("date", 1).limit(500)
     items = [public_event(d) async for d in cursor]
     # Enrich with entity logo for better cards
     for it in items:

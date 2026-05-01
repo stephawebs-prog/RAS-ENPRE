@@ -24,18 +24,19 @@ const Paywall = () => {
         </div>
 
         <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Cliente — white with orange */}
+          {/* Usuario — solid orange */}
           <Link
             to="/register/client"
-            className="group bg-white rounded-3xl border border-gray-200 p-8 hover:border-orange transition-all hover:-translate-y-1 hover:shadow-xl"
+            className="group bg-orange text-white rounded-3xl p-8 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
             data-testid="paywall-client-cta"
           >
-            <span className="w-14 h-14 rounded-full bg-orange/10 text-orange flex items-center justify-center">
+            <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10"></span>
+            <span className="relative w-14 h-14 rounded-full bg-white text-orange flex items-center justify-center shadow-lg">
               <ShoppingBag size={22} />
             </span>
-            <h2 className="font-display text-2xl text-teal-deep mt-5 leading-tight">{t.paywall.asClient}</h2>
-            <p className="text-teal-soft mt-2 text-sm">{t.paywall.asClientDesc}</p>
-            <span className="inline-flex items-center gap-2 mt-6 text-orange font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
+            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.paywall.asClient}</h2>
+            <p className="relative text-white/90 mt-2 text-sm">{t.paywall.asClientDesc}</p>
+            <span className="relative inline-flex items-center gap-2 mt-6 text-white font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
               {t.paywall.registerCta} <ArrowRight size={14} />
             </span>
           </Link>

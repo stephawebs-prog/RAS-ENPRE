@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ExternalLink, Save, LogOut } from "lucide-react";
+import { ExternalLink, Save, LogOut, Eye, MousePointerClick } from "lucide-react";
 import api, { formatApiError } from "@/lib/api";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
@@ -75,6 +75,41 @@ const Dashboard = () => {
             </div>
 
             <form onSubmit={submit} id="profile" className="mt-8 space-y-5" data-testid="dashboard-form">
+              {/* My stats */}
+              <div className="grid grid-cols-2 gap-4 p-5 bg-teal/5 rounded-2xl border-2 border-teal/10">
+                <div className="flex items-center gap-3">
+                  <span className="w-11 h-11 rounded-full bg-teal text-white flex items-center justify-center"><Eye size={18} /></span>
+                  <div>
+                    <div className="text-xs text-teal-soft uppercase tracking-wider font-bold">{t.myStats.views}</div>
+                    <div className="font-display text-3xl text-teal-deep leading-none mt-1" data-testid="my-view-count">{form.view_count || 0}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className="w-11 h-11 rounded-full bg-orange text-white flex items-center justify-center"><MousePointerClick size={18} /></span>
+                  <div>
+                    <div className="text-xs text-teal-soft uppercase tracking-wider font-bold">{t.myStats.clicks}</div>
+                    <div className="font-display text-3xl text-teal-deep leading-none mt-1" data-testid="my-click-count">{form.contact_click_count || 0}</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Volunteer toggle */}
+              <label className="flex items-start gap-3 p-4 rounded-2xl border-2 border-teal/20 hover:border-teal/50 cursor-pointer transition-colors bg-cream" data-testid="d-volunteer">
+                <input
+                  type="checkbox"
+                  checked={!!form.volunteer}
+                  onChange={async (e) => {
+                    const v = e.target.checked;
+                    setForm({ ...form, volunteer: v });
+                    try { await api.put("/me/volunteer", { volunteer: v }); } catch (err) { console.error(err); }
+                  }}
+                  className="mt-1 w-5 h-5 accent-orange"
+                />
+                <div>
+                  <div className="text-sm font-bold text-teal-deep">{t.auth.volunteerLabel}</div>
+                  <div className="text-xs text-teal-soft mt-0.5">{t.auth.volunteerHint}</div>
+                </div>
+              </label>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Field label={t.fields.businessName}><input required className="field-input" value={form.business_name || ""} onChange={set("business_name")} data-testid="d-business-name" /></Field>
                 <Field label={t.fields.ownerName}><input required className="field-input" value={form.owner_name || ""} onChange={set("owner_name")} /></Field>

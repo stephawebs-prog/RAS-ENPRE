@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null); // null | object | false
   const [profile, setProfile] = useState(null);
+  const [entity, setEntity] = useState(null);
 
   useEffect(() => {
     let mounted = true;
@@ -15,9 +16,10 @@ export const AuthProvider = ({ children }) => {
         if (mounted) {
           setUser(data.user);
           setProfile(data.profile);
+          setEntity(data.entity || null);
         }
       } catch (e) {
-        if (mounted) { setUser(false); setProfile(null); }
+        if (mounted) { setUser(false); setProfile(null); setEntity(null); }
       }
     };
     check();
@@ -28,10 +30,10 @@ export const AuthProvider = ({ children }) => {
     const { data } = await api.post("/auth/login", { email, password });
     if (data.access_token) localStorage.setItem("red.token", data.access_token);
     setUser(data.user);
-    // refresh profile
     try {
       const me = await api.get("/auth/me");
       setProfile(me.data.profile);
+      setEntity(me.data.entity || null);
     } catch (err) {
       console.error("failed to fetch profile after login:", err);
     }
@@ -54,12 +56,17 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  const setAuthFromRegister = (u, p, e) => {
+    setUser(u || false);
+    setProfile(p || null);
+    setEntity(e || null);
+  };
+
   const logout = async () => {
-    // Clear local state FIRST so UI reflects logout immediately,
-    // even if the network request fails or is slow.
     localStorage.removeItem("red.token");
     setUser(false);
     setProfile(null);
+    setEntity(null);
     try {
       await api.post("/auth/logout");
     } catch (err) {
@@ -70,11 +77,12 @@ export const AuthProvider = ({ children }) => {
   const refreshProfile = async () => {
     const { data } = await api.get("/auth/me");
     setProfile(data.profile);
+    setEntity(data.entity || null);
     return data.profile;
   };
 
   return (
-    <AuthContext.Provider value={{ user, profile, login, register, registerClient, logout, refreshProfile, setProfile }}>
+    <AuthContext.Provider value={{ user, profile, entity, login, register, registerClient, setAuthFromRegister, logout, refreshProfile, setProfile, setEntity, setUser }}>
       {children}
     </AuthContext.Provider>
   );

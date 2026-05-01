@@ -11,7 +11,10 @@ import Login from "@/pages/Login";
 import RegisterChoice from "@/pages/RegisterChoice";
 import RegisterClient from "@/pages/RegisterClient";
 import Register from "@/pages/Register";
+import RegisterEntity from "@/pages/RegisterEntity";
 import Dashboard from "@/pages/Dashboard";
+import EntityDashboard from "@/pages/EntityDashboard";
+import ClientDashboard from "@/pages/ClientDashboard";
 import AdminPanel from "@/pages/AdminPanel";
 
 const Stand = ({ children }) => <PageShell>{children}</PageShell>;
@@ -22,8 +25,8 @@ const SmartDashboard = () => {
   if (user === false) return <Navigate to="/login" replace />;
   if (user.role === "admin") return <Navigate to="/admin" replace />;
   if (user.role === "entrepreneur") return <Dashboard />;
-  // client → directory
-  return <Navigate to="/directory" replace />;
+  if (user.role === "entity") return <EntityDashboard />;
+  return <ClientDashboard />;
 };
 
 const About = () => { React.useEffect(() => { window.location.href = "/#about"; }, []); return null; };
@@ -42,7 +45,9 @@ function App() {
             <Route path="/register" element={<Stand><RegisterChoice /></Stand>} />
             <Route path="/register/client" element={<Stand><RegisterClient /></Stand>} />
             <Route path="/register/business" element={<Stand><Register /></Stand>} />
+            <Route path="/register/entity" element={<Stand><RegisterEntity /></Stand>} />
             <Route path="/dashboard" element={<Stand><SmartDashboard /></Stand>} />
+            <Route path="/entity" element={<Stand><EntityDashboard /></Stand>} />
             <Route path="/admin" element={<Stand><AdminPanel /></Stand>} />
             <Route path="/about" element={<Stand><About /></Stand>} />
             <Route path="/contact" element={<Stand><Contact /></Stand>} />

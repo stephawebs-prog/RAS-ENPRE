@@ -46,6 +46,12 @@ CATEGORIES = [
 
 REFERRAL_SOURCES = ["Roxxi", "TRC", "UMAPT", "Google", "Social", "Other"]
 
+ENTITY_TYPES = [
+    "ngo", "foundation", "church", "government", "training_center",
+    "help_center", "health_center", "legal_migration_center", "chamber_commerce",
+    "cultural_center", "food_bank", "informal_network", "other",
+]
+
 # ---------------- Models ----------------
 class RegisterEntrepreneurIn(BaseModel):
     email: EmailStr
@@ -70,6 +76,7 @@ class RegisterEntrepreneurIn(BaseModel):
     tiktok: Optional[str] = ""
     youtube: Optional[str] = ""
     source: Optional[str] = ""
+    volunteer: Optional[bool] = False
 
 class RegisterClientIn(BaseModel):
     email: EmailStr
@@ -80,6 +87,70 @@ class RegisterClientIn(BaseModel):
     state: Optional[str] = ""
     interests: List[str] = []
     source: Optional[str] = ""
+    volunteer: Optional[bool] = False
+
+class RegisterEntityIn(BaseModel):
+    # Account
+    email: EmailStr
+    password: str = Field(min_length=6)
+    # Representative
+    rep_name: str = Field(min_length=2, max_length=120)
+    rep_whatsapp: str = Field(min_length=4, max_length=40)
+    # Entity
+    entity_name: str = Field(min_length=2, max_length=160)
+    entity_email: Optional[str] = ""
+    entity_phone: str = Field(min_length=4, max_length=40)
+    entity_type: str
+    country: str = ""
+    state: Optional[str] = ""
+    city: str = Field(min_length=2, max_length=120)
+    address: Optional[str] = ""
+    description: Optional[str] = ""
+    website: Optional[str] = ""
+    logo_url: Optional[str] = ""
+    cover_url: Optional[str] = ""
+    facebook: Optional[str] = ""
+    instagram: Optional[str] = ""
+    source: Optional[str] = ""
+
+class EntityUpdate(BaseModel):
+    rep_name: Optional[str] = None
+    rep_whatsapp: Optional[str] = None
+    entity_name: Optional[str] = None
+    entity_email: Optional[str] = None
+    entity_phone: Optional[str] = None
+    entity_type: Optional[str] = None
+    country: Optional[str] = None
+    state: Optional[str] = None
+    city: Optional[str] = None
+    address: Optional[str] = None
+    description: Optional[str] = None
+    website: Optional[str] = None
+    logo_url: Optional[str] = None
+    cover_url: Optional[str] = None
+    facebook: Optional[str] = None
+    instagram: Optional[str] = None
+
+class EventIn(BaseModel):
+    name: str = Field(min_length=2, max_length=200)
+    date: str  # ISO date string YYYY-MM-DD
+    time: Optional[str] = ""  # HH:MM
+    location: str = Field(min_length=2, max_length=200)
+    description: Optional[str] = ""
+    needs: Optional[str] = ""  # Necesidades / what they need for the event
+    cover_url: Optional[str] = ""
+
+class EventUpdate(BaseModel):
+    name: Optional[str] = None
+    date: Optional[str] = None
+    time: Optional[str] = None
+    location: Optional[str] = None
+    description: Optional[str] = None
+    needs: Optional[str] = None
+    cover_url: Optional[str] = None
+
+class VolunteerToggle(BaseModel):
+    volunteer: bool
 
 class LoginIn(BaseModel):
     email: EmailStr
@@ -106,6 +177,7 @@ class EntrepreneurUpdate(BaseModel):
     tiktok: Optional[str] = None
     youtube: Optional[str] = None
     featured: Optional[bool] = None
+    volunteer: Optional[bool] = None
 
 class ContactIn(BaseModel):
     name: str = Field(min_length=2, max_length=120)
@@ -177,8 +249,9 @@ def public_entrepreneur(doc: dict) -> dict:
             "phone", "city", "state", "country", "address", "website",
             "logo_url", "cover_url", "facebook", "instagram", "twitter", "whatsapp",
             "linkedin", "tiktok", "youtube",
-            "created_at", "updated_at", "featured", "view_count", "contact_click_count"]
-    return {k: doc.get(k, 0 if k.endswith("_count") else "") for k in keep}
+            "created_at", "updated_at", "featured", "view_count", "contact_click_count",
+            "volunteer"]
+    return {k: doc.get(k, 0 if k.endswith("_count") else (False if k in ("featured", "volunteer") else "")) for k in keep}
 
 def public_user(doc: dict) -> dict:
     return {
@@ -191,8 +264,23 @@ def public_user(doc: dict) -> dict:
         "state": doc.get("state", ""),
         "interests": doc.get("interests", []),
         "source": doc.get("source", ""),
+        "volunteer": doc.get("volunteer", False),
         "created_at": doc.get("created_at", ""),
     }
+
+def public_entity(doc: dict) -> dict:
+    keep = ["id", "user_id", "rep_name", "rep_whatsapp",
+            "entity_name", "entity_email", "entity_phone", "entity_type",
+            "country", "state", "city", "address", "description",
+            "website", "logo_url", "cover_url", "facebook", "instagram",
+            "created_at", "updated_at"]
+    return {k: doc.get(k, "") for k in keep}
+
+def public_event(doc: dict) -> dict:
+    keep = ["id", "entity_id", "entity_name", "name", "date", "time",
+            "location", "description", "needs", "cover_url",
+            "created_at", "updated_at"]
+    return {k: doc.get(k, "") for k in keep}
 
 # ---------------- Public ----------------
 @api.get("/")
@@ -224,6 +312,7 @@ async def auth_register_entrepreneur(payload: RegisterEntrepreneurIn, response: 
         "phone": payload.phone, "city": payload.city, "state": payload.state or "",
         "interests": [],
         "source": payload.source or "",
+        "volunteer": bool(payload.volunteer),
         "created_at": now_iso(),
     }
     await db.users.insert_one(user_doc)
@@ -247,6 +336,7 @@ async def auth_register_entrepreneur(payload: RegisterEntrepreneurIn, response: 
         "linkedin": payload.linkedin or "",
         "tiktok": payload.tiktok or "",
         "youtube": payload.youtube or "",
+        "volunteer": bool(payload.volunteer),
         "featured": False,
         "created_at": now_iso(), "updated_at": now_iso(),
     }
@@ -281,6 +371,7 @@ async def auth_register_client(payload: RegisterClientIn, response: Response):
         "state": payload.state or "",
         "interests": interests,
         "source": payload.source or "",
+        "volunteer": bool(payload.volunteer),
         "created_at": now_iso(),
     }
     await db.users.insert_one(user_doc)
@@ -310,11 +401,16 @@ async def auth_logout(response: Response, current=Depends(get_current_user)):
 @api.get("/auth/me")
 async def auth_me(current=Depends(get_current_user)):
     profile = None
+    entity = None
     if current.get("role") == "entrepreneur":
         p = await db.entrepreneurs.find_one({"user_id": current["id"]}, {"_id": 0})
         if p:
             profile = public_entrepreneur(p)
-    return {"user": public_user(current), "profile": profile}
+    elif current.get("role") == "entity":
+        e = await db.entities.find_one({"user_id": current["id"]}, {"_id": 0})
+        if e:
+            entity = public_entity(e)
+    return {"user": public_user(current), "profile": profile, "entity": entity}
 
 # ---------------- Entrepreneurs (PROTECTED list/detail) ----------------
 @api.get("/entrepreneurs")
@@ -404,6 +500,159 @@ async def update_my_profile(payload: EntrepreneurUpdate, current=Depends(get_cur
     res.pop("_id", None)
     return public_entrepreneur(res)
 
+# ---------------- Entity Registration ----------------
+@api.post("/auth/register-entity")
+async def auth_register_entity(payload: RegisterEntityIn, response: Response):
+    email = payload.email.lower().strip()
+    if payload.entity_type not in ENTITY_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid entity type")
+    if await db.users.find_one({"email": email}):
+        raise HTTPException(status_code=400, detail="Email already registered")
+    uid = str(uuid.uuid4())
+    user_doc = {
+        "id": uid, "email": email,
+        "password_hash": hash_password(payload.password),
+        "role": "entity",
+        "full_name": payload.rep_name.strip(),
+        "phone": payload.rep_whatsapp.strip(),
+        "city": payload.city.strip(),
+        "state": payload.state or "",
+        "interests": [],
+        "source": payload.source or "",
+        "volunteer": False,
+        "created_at": now_iso(),
+    }
+    await db.users.insert_one(user_doc)
+    entity = {
+        "id": str(uuid.uuid4()), "user_id": uid,
+        "rep_name": payload.rep_name.strip(),
+        "rep_whatsapp": payload.rep_whatsapp.strip(),
+        "entity_name": payload.entity_name.strip(),
+        "entity_email": (payload.entity_email or "").strip().lower(),
+        "entity_phone": payload.entity_phone.strip(),
+        "entity_type": payload.entity_type,
+        "country": payload.country or "",
+        "state": payload.state or "",
+        "city": payload.city.strip(),
+        "address": payload.address or "",
+        "description": payload.description or "",
+        "website": payload.website or "",
+        "logo_url": payload.logo_url or "",
+        "cover_url": payload.cover_url or "",
+        "facebook": payload.facebook or "",
+        "instagram": payload.instagram or "",
+        "created_at": now_iso(), "updated_at": now_iso(),
+    }
+    await db.entities.insert_one(entity)
+    token = create_access_token(uid, email, "entity")
+    set_auth_cookie(response, token)
+    return {
+        "user": public_user(user_doc),
+        "entity": public_entity(entity),
+        "access_token": token,
+    }
+
+@api.put("/entities/me")
+async def update_my_entity(payload: EntityUpdate, current=Depends(get_current_user)):
+    if current.get("role") != "entity":
+        raise HTTPException(status_code=403, detail="Only entity reps can edit")
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    if "entity_type" in update and update["entity_type"] not in ENTITY_TYPES:
+        raise HTTPException(status_code=400, detail="Invalid entity type")
+    update["updated_at"] = now_iso()
+    res = await db.entities.find_one_and_update(
+        {"user_id": current["id"]}, {"$set": update}, return_document=True
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    res.pop("_id", None)
+    return public_entity(res)
+
+# ---------------- Events ----------------
+@api.post("/events")
+async def create_event(payload: EventIn, current=Depends(get_current_user)):
+    if current.get("role") != "entity":
+        raise HTTPException(status_code=403, detail="Only entities can create events")
+    entity = await db.entities.find_one({"user_id": current["id"]}, {"_id": 0})
+    if not entity:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    event = {
+        "id": str(uuid.uuid4()),
+        "entity_id": entity["id"],
+        "entity_name": entity["entity_name"],
+        "name": payload.name.strip(),
+        "date": payload.date,
+        "time": payload.time or "",
+        "location": payload.location.strip(),
+        "description": payload.description or "",
+        "needs": payload.needs or "",
+        "cover_url": payload.cover_url or "",
+        "created_at": now_iso(),
+        "updated_at": now_iso(),
+    }
+    await db.events.insert_one(event)
+    return public_event(event)
+
+@api.get("/events")
+async def list_events(current=Depends(get_current_user)):
+    # All events visible to any authenticated user
+    cursor = db.events.find({}, {"_id": 0}).sort("date", 1)
+    items = [public_event(d) async for d in cursor]
+    return {"items": items, "total": len(items)}
+
+@api.get("/events/mine")
+async def list_my_events(current=Depends(get_current_user)):
+    if current.get("role") != "entity":
+        raise HTTPException(status_code=403, detail="Only entities")
+    entity = await db.entities.find_one({"user_id": current["id"]}, {"_id": 0})
+    if not entity:
+        return {"items": [], "total": 0}
+    cursor = db.events.find({"entity_id": entity["id"]}, {"_id": 0}).sort("date", -1)
+    items = [public_event(d) async for d in cursor]
+    return {"items": items, "total": len(items)}
+
+@api.put("/events/{eid}")
+async def update_event(eid: str, payload: EventUpdate, current=Depends(get_current_user)):
+    if current.get("role") != "entity":
+        raise HTTPException(status_code=403, detail="Only entities")
+    entity = await db.entities.find_one({"user_id": current["id"]}, {"_id": 0})
+    if not entity:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    update = {k: v for k, v in payload.model_dump().items() if v is not None}
+    update["updated_at"] = now_iso()
+    res = await db.events.find_one_and_update(
+        {"id": eid, "entity_id": entity["id"]}, {"$set": update}, return_document=True
+    )
+    if not res:
+        raise HTTPException(status_code=404, detail="Event not found")
+    res.pop("_id", None)
+    return public_event(res)
+
+@api.delete("/events/{eid}")
+async def delete_event(eid: str, current=Depends(get_current_user)):
+    if current.get("role") not in ("entity", "admin"):
+        raise HTTPException(status_code=403, detail="Forbidden")
+    filt = {"id": eid}
+    if current.get("role") == "entity":
+        entity = await db.entities.find_one({"user_id": current["id"]}, {"_id": 0})
+        if not entity:
+            raise HTTPException(status_code=404, detail="Entity not found")
+        filt["entity_id"] = entity["id"]
+    res = await db.events.delete_one(filt)
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="Event not found")
+    return {"ok": True}
+
+# ---------------- Volunteer toggle (user / entrepreneur) ----------------
+@api.put("/me/volunteer")
+async def toggle_volunteer(payload: VolunteerToggle, current=Depends(get_current_user)):
+    if current.get("role") not in ("entrepreneur", "client"):
+        raise HTTPException(status_code=403, detail="Only entrepreneurs or users")
+    await db.users.update_one({"id": current["id"]}, {"$set": {"volunteer": bool(payload.volunteer)}})
+    if current.get("role") == "entrepreneur":
+        await db.entrepreneurs.update_one({"user_id": current["id"]}, {"$set": {"volunteer": bool(payload.volunteer)}})
+    return {"ok": True, "volunteer": bool(payload.volunteer)}
+
 # ---------------- Contact ----------------
 @api.post("/contact")
 async def contact(payload: ContactIn):
@@ -425,20 +674,105 @@ async def contact(payload: ContactIn):
 async def admin_stats(_=Depends(require_admin)):
     total_ents = await db.entrepreneurs.count_documents({})
     total_clients = await db.users.count_documents({"role": "client"})
+    total_entities = await db.entities.count_documents({})
+    total_events = await db.events.count_documents({})
     total_messages = await db.contact_messages.count_documents({})
     unread = await db.contact_messages.count_documents({"read": False})
     featured = await db.entrepreneurs.count_documents({"featured": True})
     total_views = await db.profile_views.count_documents({})
     total_clicks = await db.contact_clicks.count_documents({})
+    total_volunteers = await db.users.count_documents({"volunteer": True})
     return {
         "entrepreneurs": total_ents,
         "clients": total_clients,
+        "entities": total_entities,
+        "events": total_events,
         "messages": total_messages,
         "unread_messages": unread,
         "featured": featured,
         "total_views": total_views,
         "total_contact_clicks": total_clicks,
+        "volunteers": total_volunteers,
     }
+
+@api.get("/admin/stats/charts")
+async def admin_stats_charts(days: int = Query(30, ge=7, le=180), _=Depends(require_admin)):
+    """Aggregated chart data: signups by day, by referral source, by role."""
+    from datetime import timedelta as _td
+    end = datetime.now(timezone.utc)
+    start = end - _td(days=days)
+    start_iso = start.isoformat()
+
+    # Signups by day (entrepreneurs + clients + entities)
+    by_day: dict = {}
+    for i in range(days + 1):
+        d = (start + _td(days=i)).strftime("%Y-%m-%d")
+        by_day[d] = {"date": d, "entrepreneurs": 0, "clients": 0, "entities": 0}
+
+    async for u in db.users.find({"created_at": {"$gte": start_iso}}, {"_id": 0, "created_at": 1, "role": 1}):
+        day = (u.get("created_at") or "")[:10]
+        if day in by_day:
+            r = u.get("role")
+            if r == "entrepreneur":
+                by_day[day]["entrepreneurs"] += 1
+            elif r == "client":
+                by_day[day]["clients"] += 1
+            elif r == "entity":
+                by_day[day]["entities"] += 1
+
+    signups_series = sorted(by_day.values(), key=lambda x: x["date"])
+
+    # By referral source (all users in range)
+    src_counts: dict = {k: 0 for k in REFERRAL_SOURCES}
+    src_counts[""] = 0
+    async for u in db.users.find({"created_at": {"$gte": start_iso}}, {"_id": 0, "source": 1}):
+        s = u.get("source") or ""
+        if s in src_counts:
+            src_counts[s] += 1
+        else:
+            src_counts[s] = src_counts.get(s, 0) + 1
+    by_source = [{"source": k or "Sin fuente", "count": v} for k, v in src_counts.items() if v > 0]
+
+    # By role (pie)
+    roles_dist = [
+        {"role": "entrepreneurs", "count": await db.entrepreneurs.count_documents({})},
+        {"role": "clients", "count": await db.users.count_documents({"role": "client"})},
+        {"role": "entities", "count": await db.entities.count_documents({})},
+    ]
+
+    return {
+        "range_days": days,
+        "signups_by_day": signups_series,
+        "by_source": by_source,
+        "by_role": roles_dist,
+    }
+
+@api.get("/admin/entities")
+async def admin_list_entities(q: Optional[str] = None, _=Depends(require_admin)):
+    filt = {}
+    if q:
+        filt["$or"] = [
+            {"entity_name": {"$regex": q, "$options": "i"}},
+            {"rep_name": {"$regex": q, "$options": "i"}},
+            {"city": {"$regex": q, "$options": "i"}},
+        ]
+    cursor = db.entities.find(filt, {"_id": 0}).sort("created_at", -1).limit(500)
+    items = [public_entity(d) async for d in cursor]
+    for item in items:
+        u = await db.users.find_one({"id": item["user_id"]}, {"_id": 0, "email": 1, "source": 1})
+        item["email"] = (u or {}).get("email", "")
+        item["source"] = (u or {}).get("source", "")
+    return {"items": items, "total": len(items)}
+
+@api.delete("/admin/entities/{eid}")
+async def admin_delete_entity(eid: str, _=Depends(require_admin)):
+    doc = await db.entities.find_one({"id": eid}, {"_id": 0})
+    if not doc:
+        raise HTTPException(status_code=404, detail="Entity not found")
+    await db.entities.delete_one({"id": eid})
+    await db.users.delete_one({"id": doc["user_id"], "role": "entity"})
+    await db.events.delete_many({"entity_id": eid})
+    return {"ok": True}
 
 @api.get("/admin/entrepreneurs/{eid}/activity")
 async def admin_entrepreneur_activity(eid: str, _=Depends(require_admin)):
@@ -461,9 +795,10 @@ async def admin_list_entrepreneurs(q: Optional[str] = None, _=Depends(require_ad
     items = [public_entrepreneur(d) async for d in cursor]
     # enrich with email + source of owner
     for item in items:
-        u = await db.users.find_one({"id": item["user_id"]}, {"_id": 0, "email": 1, "source": 1})
+        u = await db.users.find_one({"id": item["user_id"]}, {"_id": 0, "email": 1, "source": 1, "volunteer": 1})
         item["email"] = (u or {}).get("email", "")
         item["source"] = (u or {}).get("source", "")
+        item["volunteer"] = bool((u or {}).get("volunteer", False))
     return {"items": items, "total": len(items)}
 
 @api.patch("/admin/entrepreneurs/{eid}")
@@ -577,6 +912,9 @@ async def on_startup():
     await db.profile_views.create_index("entrepreneur_id")
     await db.profile_views.create_index("viewer_id")
     await db.contact_clicks.create_index("entrepreneur_id")
+    await db.entities.create_index("user_id")
+    await db.events.create_index("entity_id")
+    await db.events.create_index("date")
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@redsolidaridad.com").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@RED2026")
     existing = await db.users.find_one({"email": admin_email})

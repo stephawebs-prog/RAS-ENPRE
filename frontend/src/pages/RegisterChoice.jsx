@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { ShoppingBag, Briefcase, ArrowRight, ShieldCheck } from "lucide-react";
+import { ShoppingBag, Briefcase, ArrowRight, ShieldCheck, HeartHandshake } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 
 const RegisterChoice = () => {
   const { t } = useI18n();
   return (
     <section className="min-h-[80vh] bg-cream py-16">
-      <div className="container-tight max-w-4xl">
+      <div className="container-tight max-w-6xl">
         <div className="text-center">
           <p className="eyebrow text-orange">{t.auth.chooseEyebrow}</p>
           <h1 className="font-display text-4xl md:text-5xl text-teal-deep leading-tight mt-3" data-testid="choice-title">
@@ -16,11 +16,11 @@ const RegisterChoice = () => {
           <p className="text-teal-soft text-base mt-3 max-w-xl mx-auto">{t.auth.chooseSub}</p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Usuario — solid orange */}
+        <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Usuario — naranja */}
           <Link
             to="/register/client"
-            className="group bg-orange text-white rounded-3xl p-8 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
+            className="group bg-orange text-white rounded-3xl p-7 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
             data-testid="choice-client"
           >
             <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10"></span>
@@ -34,10 +34,10 @@ const RegisterChoice = () => {
             </span>
           </Link>
 
-          {/* Emprendedor — solid teal with orange CTA */}
+          {/* Emprendedor — teal */}
           <Link
             to="/register/business"
-            className="group bg-teal text-white rounded-3xl p-8 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
+            className="group bg-teal text-white rounded-3xl p-7 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
             data-testid="choice-business"
           >
             <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-orange/20"></span>
@@ -48,6 +48,24 @@ const RegisterChoice = () => {
             <p className="relative text-white/80 mt-2 text-sm">{t.auth.asEntrepreneurDesc}</p>
             <span className="relative inline-flex items-center gap-2 mt-6 text-orange font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
               {t.auth.asEntrepreneur} <ArrowRight size={14} />
+            </span>
+          </Link>
+
+          {/* Entidad Comunitaria — teal-deep */}
+          <Link
+            to="/register/entity"
+            className="group rounded-3xl p-7 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden text-white"
+            style={{ backgroundColor: "#163d37" }}
+            data-testid="choice-entity"
+          >
+            <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-orange/20"></span>
+            <span className="relative w-14 h-14 rounded-full bg-white text-teal-deep flex items-center justify-center shadow-lg">
+              <HeartHandshake size={22} />
+            </span>
+            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.auth.asEntity}</h2>
+            <p className="relative text-white/80 mt-2 text-sm">{t.auth.asEntityDesc}</p>
+            <span className="relative inline-flex items-center gap-2 mt-6 text-orange font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
+              {t.auth.asEntity} <ArrowRight size={14} />
             </span>
           </Link>
         </div>

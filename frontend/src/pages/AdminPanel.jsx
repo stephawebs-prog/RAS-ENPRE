@@ -1,17 +1,20 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
-import { Users, Briefcase, MessageSquare, Star, Download, Trash2, Search, ExternalLink, Eye, MailOpen, ChevronDown, Phone, Mail, Globe, Facebook, Instagram, MessageCircle, MapPin, MousePointerClick } from "lucide-react";
+import { Users, Briefcase, MessageSquare, Star, Download, Trash2, Search, ExternalLink, Eye, MailOpen, ChevronDown, Phone, Mail, Globe, Facebook, Instagram, MessageCircle, MapPin, MousePointerClick, HeartHandshake, Calendar, Building2 } from "lucide-react";
+import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import api, { API, formatApiError } from "@/lib/api";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
 
+const CHART_COLORS = ["#E97A3A", "#1F4E47", "#5A9A90", "#F4B183", "#163d37", "#8BA6A0", "#FFB47A"];
+
 const Tabs = ({ value, onChange, items }) => (
-  <div className="flex gap-2 flex-wrap border-b border-gray-200">
+  <div className="flex gap-2 flex-wrap border-b border-gray-200 overflow-x-auto">
     {items.map((it) => (
       <button
         key={it.k}
         onClick={() => onChange(it.k)}
-        className={`px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors -mb-px border-b-2 ${
+        className={`px-4 py-3 text-sm font-bold uppercase tracking-wider transition-colors -mb-px border-b-2 whitespace-nowrap ${
           value === it.k ? "text-orange border-orange" : "text-teal-soft border-transparent hover:text-teal"
         }`}
         data-testid={`admin-tab-${it.k}`}
@@ -48,7 +51,7 @@ const ContactRow = ({ icon: Icon, label, value, href }) => {
 };
 
 const StatCard = ({ icon: Icon, label, value, color = "teal" }) => (
-  <div className="bg-white rounded-2xl border border-gray-200 p-6">
+  <div className="bg-white rounded-2xl border border-gray-200 p-5">
     <div className="flex items-center gap-3">
       <span className={`w-10 h-10 rounded-full ${color === "orange" ? "bg-orange" : "bg-teal"} text-white flex items-center justify-center`}>
         <Icon size={18} />
@@ -61,14 +64,28 @@ const StatCard = ({ icon: Icon, label, value, color = "teal" }) => (
   </div>
 );
 
+const VolBadge = ({ active, label }) => (
+  <span
+    className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-bold ${
+      active ? "bg-orange/15 text-orange" : "bg-gray-100 text-gray-400"
+    }`}
+    title={label}
+  >
+    <HeartHandshake size={12} /> {active ? "✓" : "—"}
+  </span>
+);
+
 const AdminPanel = () => {
   const { t } = useI18n();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [tab, setTab] = useState("stats");
   const [stats, setStats] = useState(null);
+  const [charts, setCharts] = useState(null);
   const [ents, setEnts] = useState([]);
   const [clients, setClients] = useState([]);
+  const [entities, setEntities] = useState([]);
+  const [events, setEvents] = useState([]);
   const [messages, setMessages] = useState([]);
   const [q, setQ] = useState("");
   const [error, setError] = useState("");
@@ -83,12 +100,24 @@ const AdminPanel = () => {
     try { const { data } = await api.get("/admin/stats"); setStats(data); }
     catch (e) { setError(formatApiError(e)); }
   };
+  const loadCharts = async () => {
+    try { const { data } = await api.get("/admin/stats/charts", { params: { days: 30 } }); setCharts(data); }
+    catch (e) { setError(formatApiError(e)); }
+  };
   const loadEnts = async (search = "") => {
     try { const { data } = await api.get("/admin/entrepreneurs", { params: { q: search || undefined } }); setEnts(data.items); }
     catch (e) { setError(formatApiError(e)); }
   };
   const loadClients = async (search = "") => {
     try { const { data } = await api.get("/admin/clients", { params: { q: search || undefined } }); setClients(data.items); }
+    catch (e) { setError(formatApiError(e)); }
+  };
+  const loadEntities = async (search = "") => {
+    try { const { data } = await api.get("/admin/entities", { params: { q: search || undefined } }); setEntities(data.items); }
+    catch (e) { setError(formatApiError(e)); }
+  };
+  const loadEvents = async () => {
+    try { const { data } = await api.get("/events"); setEvents(data.items); }
     catch (e) { setError(formatApiError(e)); }
   };
   const loadMessages = async () => {
@@ -99,8 +128,11 @@ const AdminPanel = () => {
   useEffect(() => {
     if (!user || user.role !== "admin") return;
     loadStats();
-    if (tab === "entrepreneurs") loadEnts(q);
+    if (tab === "stats") loadCharts();
+    else if (tab === "entrepreneurs") loadEnts(q);
     else if (tab === "clients") loadClients(q);
+    else if (tab === "entities") loadEntities(q);
+    else if (tab === "events") loadEvents();
     else if (tab === "messages") loadMessages();
     // eslint-disable-next-line
   }, [tab, user]);
@@ -110,16 +142,15 @@ const AdminPanel = () => {
     const handle = setTimeout(() => {
       if (tab === "entrepreneurs") loadEnts(q);
       else if (tab === "clients") loadClients(q);
+      else if (tab === "entities") loadEntities(q);
     }, 250);
     return () => clearTimeout(handle);
     // eslint-disable-next-line
   }, [q]);
 
   const toggleFeatured = async (e) => {
-    try {
-      await api.patch(`/admin/entrepreneurs/${e.id}`, { featured: !e.featured });
-      loadEnts(q); loadStats();
-    } catch (err) { setError(formatApiError(err)); }
+    try { await api.patch(`/admin/entrepreneurs/${e.id}`, { featured: !e.featured }); loadEnts(q); loadStats(); }
+    catch (err) { setError(formatApiError(err)); }
   };
   const deleteEnt = async (e) => {
     if (!window.confirm(t.admin.confirm)) return;
@@ -129,6 +160,16 @@ const AdminPanel = () => {
   const deleteClient = async (c) => {
     if (!window.confirm(t.admin.confirm)) return;
     try { await api.delete(`/admin/clients/${c.id}`); loadClients(q); loadStats(); }
+    catch (err) { setError(formatApiError(err)); }
+  };
+  const deleteEntity = async (en) => {
+    if (!window.confirm(t.admin.confirm)) return;
+    try { await api.delete(`/admin/entities/${en.id}`); loadEntities(q); loadStats(); }
+    catch (err) { setError(formatApiError(err)); }
+  };
+  const deleteEvent = async (ev) => {
+    if (!window.confirm(t.admin.confirm)) return;
+    try { await api.delete(`/events/${ev.id}`); loadEvents(); loadStats(); }
     catch (err) { setError(formatApiError(err)); }
   };
   const markRead = async (m) => {
@@ -177,6 +218,8 @@ const AdminPanel = () => {
             { k: "stats", label: t.admin.tabs.stats },
             { k: "entrepreneurs", label: t.admin.tabs.entrepreneurs },
             { k: "clients", label: t.admin.tabs.clients },
+            { k: "entities", label: t.admin.tabs.entities },
+            { k: "events", label: t.admin.tabs.events },
             { k: "messages", label: t.admin.tabs.messages },
           ]}
         />
@@ -184,31 +227,91 @@ const AdminPanel = () => {
         {error && <p className="text-red-600 text-sm mt-4" data-testid="admin-error">{error}</p>}
 
         {tab === "stats" && stats && (
-          <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4" data-testid="admin-stats">
-            <StatCard icon={Briefcase} label={t.admin.stats.entrepreneurs} value={stats.entrepreneurs} />
-            <StatCard icon={Users} label={t.admin.stats.clients} value={stats.clients} />
-            <StatCard icon={MessageSquare} label={t.admin.stats.messages} value={stats.messages} />
-            <StatCard icon={MailOpen} label={t.admin.stats.unread} value={stats.unread_messages} color="orange" />
-            <StatCard icon={Star} label={t.admin.stats.featured} value={stats.featured} color="orange" />
-            <StatCard icon={Eye} label="Vistas a perfiles" value={stats.total_views || 0} />
-            <StatCard icon={MousePointerClick} label="Clics de contacto" value={stats.total_contact_clicks || 0} color="orange" />
-          </div>
+          <>
+            <div className="mt-8 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4" data-testid="admin-stats">
+              <StatCard icon={Briefcase} label={t.admin.stats.entrepreneurs} value={stats.entrepreneurs} />
+              <StatCard icon={Users} label={t.admin.stats.clients} value={stats.clients} />
+              <StatCard icon={Building2} label={t.admin.stats.entities} value={stats.entities || 0} color="orange" />
+              <StatCard icon={Calendar} label={t.admin.stats.events} value={stats.events || 0} />
+              <StatCard icon={HeartHandshake} label={t.admin.stats.volunteers} value={stats.volunteers || 0} color="orange" />
+              <StatCard icon={MessageSquare} label={t.admin.stats.messages} value={stats.messages} />
+              <StatCard icon={MailOpen} label={t.admin.stats.unread} value={stats.unread_messages} color="orange" />
+              <StatCard icon={Star} label={t.admin.stats.featured} value={stats.featured} color="orange" />
+              <StatCard icon={Eye} label="Vistas" value={stats.total_views || 0} />
+              <StatCard icon={MousePointerClick} label="Clics" value={stats.total_contact_clicks || 0} color="orange" />
+            </div>
+
+            {charts && (
+              <div className="mt-8 grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 lg:col-span-2" data-testid="chart-signups">
+                  <div className="flex items-center justify-between mb-4">
+                    <h3 className="font-display text-xl text-teal-deep">{t.admin.charts.signupsByDay}</h3>
+                    <span className="text-xs text-teal-soft uppercase tracking-wider">{t.admin.charts.last30}</span>
+                  </div>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <LineChart data={charts.signups_by_day}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                      <XAxis dataKey="date" tick={{ fontSize: 10 }} tickFormatter={(d) => d?.slice(5)} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                      <Tooltip />
+                      <Legend />
+                      <Line type="monotone" dataKey="entrepreneurs" stroke="#E97A3A" strokeWidth={2} dot={false} name={t.admin.stats.entrepreneurs} />
+                      <Line type="monotone" dataKey="clients" stroke="#1F4E47" strokeWidth={2} dot={false} name={t.admin.stats.clients} />
+                      <Line type="monotone" dataKey="entities" stroke="#8B5CF6" strokeWidth={2} dot={false} name={t.admin.stats.entities} />
+                    </LineChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-6" data-testid="chart-pie">
+                  <h3 className="font-display text-xl text-teal-deep mb-4">{t.admin.charts.byRole}</h3>
+                  <ResponsiveContainer width="100%" height={280}>
+                    <PieChart>
+                      <Pie
+                        data={charts.by_role}
+                        dataKey="count"
+                        nameKey="role"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={90}
+                        label={(e) => `${e.role}: ${e.count}`}
+                      >
+                        {(charts.by_role || []).map((_, i) => (
+                          <Cell key={i} fill={CHART_COLORS[i % CHART_COLORS.length]} />
+                        ))}
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
+                </div>
+
+                <div className="bg-white rounded-2xl border border-gray-200 p-6 lg:col-span-3" data-testid="chart-source">
+                  <h3 className="font-display text-xl text-teal-deep mb-4">{t.admin.charts.bySource}</h3>
+                  <ResponsiveContainer width="100%" height={260}>
+                    <BarChart data={charts.by_source}>
+                      <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
+                      <XAxis dataKey="source" tick={{ fontSize: 11 }} />
+                      <YAxis allowDecimals={false} tick={{ fontSize: 10 }} />
+                      <Tooltip />
+                      <Bar dataKey="count" fill="#E97A3A" radius={[8, 8, 0, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </div>
+            )}
+          </>
         )}
 
-        {(tab === "entrepreneurs" || tab === "clients") && (
+        {(tab === "entrepreneurs" || tab === "clients" || tab === "entities") && (
           <div className="mt-6 flex items-center gap-3 flex-wrap">
             <div className="relative flex-1 min-w-[260px]">
               <Search size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-teal-soft" />
-              <input
-                value={q} onChange={(e) => setQ(e.target.value)}
-                placeholder={t.admin.search}
-                className="field-input pl-11 rounded-full"
-                data-testid="admin-search"
-              />
+              <input value={q} onChange={(e) => setQ(e.target.value)} placeholder={t.admin.search} className="field-input pl-11 rounded-full" data-testid="admin-search" />
             </div>
-            <button onClick={() => exportCsv(tab === "entrepreneurs" ? "entrepreneurs" : "clients")} className="btn-teal-outline" data-testid="admin-export">
-              <Download size={14} /> {t.admin.exportCsv}
-            </button>
+            {tab !== "entities" && (
+              <button onClick={() => exportCsv(tab === "entrepreneurs" ? "entrepreneurs" : "clients")} className="btn-teal-outline" data-testid="admin-export">
+                <Download size={14} /> {t.admin.exportCsv}
+              </button>
+            )}
           </div>
         )}
 
@@ -223,6 +326,7 @@ const AdminPanel = () => {
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.email}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.category}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.city}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.volunteer}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.source}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.featured}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.actions}</th>
@@ -230,13 +334,11 @@ const AdminPanel = () => {
                 </thead>
                 <tbody>
                   {ents.length === 0 ? (
-                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={8}>{t.admin.noResults}</td></tr>
+                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={9}>{t.admin.noResults}</td></tr>
                   ) : ents.map((e) => (
                     <React.Fragment key={e.id}>
                       <tr className="border-b border-gray-100 hover:bg-cream/40 cursor-pointer" onClick={() => setExpandedId(expandedId === e.id ? null : e.id)}>
-                        <td className="px-4 py-3">
-                          <ChevronDown size={16} className={`text-teal-soft transition-transform ${expandedId === e.id ? "rotate-180" : ""}`} />
-                        </td>
+                        <td className="px-4 py-3"><ChevronDown size={16} className={`text-teal-soft transition-transform ${expandedId === e.id ? "rotate-180" : ""}`} /></td>
                         <td className="px-4 py-3">
                           <div className="font-display text-lg text-teal-deep leading-tight">{e.business_name}</div>
                           <div className="text-xs text-teal-soft">{e.owner_name}</div>
@@ -244,6 +346,7 @@ const AdminPanel = () => {
                         <td className="px-4 py-3 text-teal-soft">{e.email}</td>
                         <td className="px-4 py-3 text-teal-soft">{t.categories[e.category] || e.category}</td>
                         <td className="px-4 py-3 text-teal-soft">{e.city}{e.state ? `, ${e.state}` : ""}</td>
+                        <td className="px-4 py-3"><VolBadge active={e.volunteer} label={t.admin.volunteerBadge} /></td>
                         <td className="px-4 py-3 text-teal-soft text-xs">{e.source || "—"}</td>
                         <td className="px-4 py-3" onClick={(ev) => ev.stopPropagation()}>
                           <button onClick={() => toggleFeatured(e)} className={`${e.featured ? "text-orange" : "text-gray-300 hover:text-orange"} transition-colors`} data-testid={`feat-${e.id}`}>
@@ -252,33 +355,23 @@ const AdminPanel = () => {
                         </td>
                         <td className="px-4 py-3" onClick={(ev) => ev.stopPropagation()}>
                           <div className="flex items-center gap-2">
-                            <Link to={`/entrepreneur/${e.id}`} className="text-teal hover:text-orange" title={t.admin.view}>
-                              <Eye size={16} />
-                            </Link>
-                            <button onClick={() => deleteEnt(e)} className="text-red-500 hover:text-red-700" title={t.admin.delete} data-testid={`del-ent-${e.id}`}>
-                              <Trash2 size={16} />
-                            </button>
+                            <Link to={`/entrepreneur/${e.id}`} className="text-teal hover:text-orange" title={t.admin.view}><Eye size={16} /></Link>
+                            <button onClick={() => deleteEnt(e)} className="text-red-500 hover:text-red-700" title={t.admin.delete} data-testid={`del-ent-${e.id}`}><Trash2 size={16} /></button>
                           </div>
                         </td>
                       </tr>
                       {expandedId === e.id && (
                         <tr className="bg-cream/60 border-b border-gray-100">
                           <td></td>
-                          <td colSpan={7} className="px-4 py-5">
+                          <td colSpan={8} className="px-4 py-5">
                             <div className="flex items-center gap-6 mb-4 pb-4 border-b border-gray-200">
                               <div className="flex items-center gap-2">
                                 <span className="w-9 h-9 rounded-full bg-teal text-white flex items-center justify-center"><Eye size={16} /></span>
-                                <div>
-                                  <div className="text-xs uppercase tracking-wider font-bold text-teal">Vistas al perfil</div>
-                                  <div className="font-display text-2xl text-teal-deep leading-none">{e.view_count || 0}</div>
-                                </div>
+                                <div><div className="text-xs uppercase tracking-wider font-bold text-teal">Vistas al perfil</div><div className="font-display text-2xl text-teal-deep leading-none">{e.view_count || 0}</div></div>
                               </div>
                               <div className="flex items-center gap-2">
                                 <span className="w-9 h-9 rounded-full bg-orange text-white flex items-center justify-center"><MousePointerClick size={16} /></span>
-                                <div>
-                                  <div className="text-xs uppercase tracking-wider font-bold text-teal">Clics de contacto</div>
-                                  <div className="font-display text-2xl text-teal-deep leading-none">{e.contact_click_count || 0}</div>
-                                </div>
+                                <div><div className="text-xs uppercase tracking-wider font-bold text-teal">Clics de contacto</div><div className="font-display text-2xl text-teal-deep leading-none">{e.contact_click_count || 0}</div></div>
                               </div>
                             </div>
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 text-sm">
@@ -315,6 +408,7 @@ const AdminPanel = () => {
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.email}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.phone}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.city}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.volunteer}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.interests}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.source}</th>
                     <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.actions}</th>
@@ -322,22 +416,81 @@ const AdminPanel = () => {
                 </thead>
                 <tbody>
                   {clients.length === 0 ? (
-                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={7}>{t.admin.noResults}</td></tr>
+                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={8}>{t.admin.noResults}</td></tr>
                   ) : clients.map((c) => (
                     <tr key={c.id} className="border-b border-gray-100 hover:bg-cream/40">
                       <td className="px-4 py-3 font-semibold text-teal-deep">{c.full_name}</td>
                       <td className="px-4 py-3 text-teal-soft">{c.email}</td>
                       <td className="px-4 py-3 text-teal-soft">{c.phone}</td>
                       <td className="px-4 py-3 text-teal-soft">{c.city}{c.state ? `, ${c.state}` : ""}</td>
-                      <td className="px-4 py-3 text-teal-soft text-xs">
-                        {(c.interests || []).map((k) => t.categories[k] || k).join(", ")}
-                      </td>
+                      <td className="px-4 py-3"><VolBadge active={c.volunteer} label={t.admin.volunteerBadge} /></td>
+                      <td className="px-4 py-3 text-teal-soft text-xs">{(c.interests || []).map((k) => t.categories[k] || k).join(", ")}</td>
                       <td className="px-4 py-3 text-teal-soft text-xs">{c.source || "—"}</td>
-                      <td className="px-4 py-3">
-                        <button onClick={() => deleteClient(c)} className="text-red-500 hover:text-red-700" title={t.admin.delete} data-testid={`del-client-${c.id}`}>
-                          <Trash2 size={16} />
-                        </button>
-                      </td>
+                      <td className="px-4 py-3"><button onClick={() => deleteClient(c)} className="text-red-500 hover:text-red-700" title={t.admin.delete}><Trash2 size={16} /></button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {tab === "entities" && (
+          <div className="mt-6 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid="admin-entities-table">
+                <thead className="bg-cream border-b border-gray-200">
+                  <tr className="text-left text-teal">
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.entity}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.entityType}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.representative}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.email}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.city}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.actions}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entities.length === 0 ? (
+                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={6}>{t.admin.noResults}</td></tr>
+                  ) : entities.map((en) => (
+                    <tr key={en.id} className="border-b border-gray-100 hover:bg-cream/40">
+                      <td className="px-4 py-3 font-semibold text-teal-deep">{en.entity_name}</td>
+                      <td className="px-4 py-3 text-teal-soft">{t.entities.types[en.entity_type] || en.entity_type}</td>
+                      <td className="px-4 py-3 text-teal-soft">{en.rep_name}</td>
+                      <td className="px-4 py-3 text-teal-soft">{en.email}</td>
+                      <td className="px-4 py-3 text-teal-soft">{en.city}{en.state ? `, ${en.state}` : ""}</td>
+                      <td className="px-4 py-3"><button onClick={() => deleteEntity(en)} className="text-red-500 hover:text-red-700" data-testid={`del-entity-${en.id}`}><Trash2 size={16} /></button></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {tab === "events" && (
+          <div className="mt-6 bg-white rounded-2xl border border-gray-200 overflow-hidden">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm" data-testid="admin-events-table">
+                <thead className="bg-cream border-b border-gray-200">
+                  <tr className="text-left text-teal">
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.eventName}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.entity}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.when}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.location}</th>
+                    <th className="px-4 py-3 font-bold uppercase text-xs tracking-wider">{t.admin.th.actions}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {events.length === 0 ? (
+                    <tr><td className="px-4 py-8 text-center text-teal-soft" colSpan={5}>{t.admin.noResults}</td></tr>
+                  ) : events.map((ev) => (
+                    <tr key={ev.id} className="border-b border-gray-100 hover:bg-cream/40">
+                      <td className="px-4 py-3 font-semibold text-teal-deep">{ev.name}</td>
+                      <td className="px-4 py-3 text-teal-soft">{ev.entity_name}</td>
+                      <td className="px-4 py-3 text-teal-soft">{ev.date} {ev.time}</td>
+                      <td className="px-4 py-3 text-teal-soft">{ev.location}</td>
+                      <td className="px-4 py-3"><button onClick={() => deleteEvent(ev)} className="text-red-500 hover:text-red-700"><Trash2 size={16} /></button></td>
                     </tr>
                   ))}
                 </tbody>
@@ -373,14 +526,8 @@ const AdminPanel = () => {
                       <td className="px-4 py-3 text-teal-soft text-xs">{(m.created_at || "").slice(0, 16).replace("T", " ")}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">
-                          {!m.read && (
-                            <button onClick={() => markRead(m)} className="text-teal hover:text-orange" title={t.admin.contactReadAll}>
-                              <MailOpen size={16} />
-                            </button>
-                          )}
-                          <button onClick={() => deleteMsg(m)} className="text-red-500 hover:text-red-700" title={t.admin.delete}>
-                            <Trash2 size={16} />
-                          </button>
+                          {!m.read && (<button onClick={() => markRead(m)} className="text-teal hover:text-orange" title={t.admin.contactReadAll}><MailOpen size={16} /></button>)}
+                          <button onClick={() => deleteMsg(m)} className="text-red-500 hover:text-red-700" title={t.admin.delete}><Trash2 size={16} /></button>
                         </div>
                       </td>
                     </tr>

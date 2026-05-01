@@ -18,6 +18,7 @@ const blank = {
   facebook: "", instagram: "", twitter: "", whatsapp: "",
   linkedin: "", tiktok: "", youtube: "",
   source: "",
+  volunteer: false,
 };
 
 const SOURCE_KEYS = ["Roxxi", "TRC", "UMAPT", "Google", "Social", "Other"];
@@ -252,6 +253,19 @@ const Register = () => {
                     <input className="field-input mt-1" value={form.twitter} onChange={set("twitter")} />
                   </div>
                 </div>
+
+                <label className="flex items-start gap-3 mt-6 p-4 rounded-2xl border-2 border-teal/20 hover:border-teal/50 cursor-pointer transition-colors bg-teal/5" data-testid="reg-volunteer">
+                  <input
+                    type="checkbox"
+                    checked={form.volunteer}
+                    onChange={(e) => setForm({ ...form, volunteer: e.target.checked })}
+                    className="mt-1 w-5 h-5 accent-orange"
+                  />
+                  <div>
+                    <div className="text-sm font-bold text-teal-deep">{t.auth.volunteerLabel}</div>
+                    <div className="text-xs text-teal-soft mt-0.5">{t.auth.volunteerHint}</div>
+                  </div>
+                </label>
               </>
             )}
 

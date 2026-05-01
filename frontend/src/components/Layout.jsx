@@ -4,17 +4,22 @@ import { Mail, Phone, Facebook, Instagram, MessageCircle, Globe, Menu, X, LogOut
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
 
-const LOGO_URL = "https://customer-assets.emergentagent.com/job_creator-connect-302/artifacts/axnqaied_LOGO-WEB.png";
+const LOGO_ES = "https://customer-assets.emergentagent.com/job_creator-connect-302/artifacts/axnqaied_LOGO-WEB.png";
+const LOGO_EN = "https://customer-assets.emergentagent.com/job_creator-connect-302/artifacts/bo1j0zr3_LOGO-RAS.png";
 
-export const Logo = ({ className = "h-14", invert = false }) => (
-  <Link to="/" className="inline-flex items-center" data-testid="brand-logo-link">
-    <img
-      src={LOGO_URL}
-      alt="Red de Amor y Solidaridad"
-      className={`${className} w-auto ${invert ? "" : "mix-blend-multiply"}`}
-    />
-  </Link>
-);
+export const Logo = ({ className = "h-14", invert = false }) => {
+  const { lang } = useI18n();
+  const src = lang === "en" ? LOGO_EN : LOGO_ES;
+  return (
+    <Link to="/" className="inline-flex items-center" data-testid="brand-logo-link">
+      <img
+        src={src}
+        alt="Red de Amor y Solidaridad"
+        className={`${className} w-auto ${invert ? "" : "mix-blend-multiply"}`}
+      />
+    </Link>
+  );
+};
 
 const TopBar = () => {
   const { t, lang, toggle } = useI18n();
@@ -80,9 +85,13 @@ export const Navbar = () => {
                 <Link to="/dashboard" className="btn-teal-outline" data-testid="nav-dashboard">
                   <LayoutDashboard size={14} /> {t.nav.dashboard}
                 </Link>
+              ) : user.role === "entity" ? (
+                <Link to="/entity" className="btn-teal-outline" data-testid="nav-dashboard">
+                  <LayoutDashboard size={14} /> {t.nav.dashboard}
+                </Link>
               ) : (
-                <Link to="/directory" className="btn-teal-outline" data-testid="nav-dashboard">
-                  <LayoutDashboard size={14} /> {t.nav.directory}
+                <Link to="/dashboard" className="btn-teal-outline" data-testid="nav-dashboard">
+                  <LayoutDashboard size={14} /> {t.nav.dashboard}
                 </Link>
               )}
               <button onClick={handleLogout} className="text-teal hover:text-orange text-sm font-semibold" data-testid="nav-logout">

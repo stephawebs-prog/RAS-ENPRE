@@ -1,13 +1,13 @@
 import React from "react";
 import { Link } from "react-router-dom";
-import { Briefcase, ShoppingBag, ArrowRight, ShieldCheck } from "lucide-react";
+import { Briefcase, ShoppingBag, ArrowRight, ShieldCheck, HeartHandshake } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
 
 const Paywall = () => {
   const { t } = useI18n();
   return (
     <section className="min-h-[80vh] bg-cream py-16">
-      <div className="container-tight max-w-4xl">
+      <div className="container-tight max-w-6xl">
         <div className="text-center">
           <p className="eyebrow text-orange">{t.nav.directory}</p>
           <h1 className="font-display text-4xl md:text-5xl text-teal-deep leading-tight mt-3" data-testid="paywall-title">
@@ -23,36 +23,54 @@ const Paywall = () => {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Usuario — solid orange */}
+        <div className="mt-10 grid grid-cols-1 md:grid-cols-3 gap-5">
+          {/* Usuario — naranja */}
           <Link
             to="/register/client"
-            className="group bg-orange text-white rounded-3xl p-8 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
+            className="group bg-orange text-white rounded-3xl p-7 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
             data-testid="paywall-client-cta"
           >
             <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-white/10"></span>
             <span className="relative w-14 h-14 rounded-full bg-white text-orange flex items-center justify-center shadow-lg">
               <ShoppingBag size={22} />
             </span>
-            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.paywall.asClient}</h2>
-            <p className="relative text-white/90 mt-2 text-sm">{t.paywall.asClientDesc}</p>
+            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.auth.asClient}</h2>
+            <p className="relative text-white/90 mt-2 text-sm">{t.auth.asClientDesc}</p>
             <span className="relative inline-flex items-center gap-2 mt-6 text-white font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
               {t.paywall.registerCta} <ArrowRight size={14} />
             </span>
           </Link>
 
-          {/* Emprendedor — solid teal with orange */}
+          {/* Emprendedor — teal */}
           <Link
             to="/register/business"
-            className="group bg-teal text-white rounded-3xl p-8 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
+            className="group bg-teal text-white rounded-3xl p-7 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden"
             data-testid="paywall-business-cta"
           >
             <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-orange/20"></span>
             <span className="relative w-14 h-14 rounded-full bg-orange text-white flex items-center justify-center shadow-lg shadow-orange/40">
               <Briefcase size={22} />
             </span>
-            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.paywall.asEntrepreneur}</h2>
-            <p className="relative text-white/80 mt-2 text-sm">{t.paywall.asEntrepreneurDesc}</p>
+            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.auth.asEntrepreneur}</h2>
+            <p className="relative text-white/80 mt-2 text-sm">{t.auth.asEntrepreneurDesc}</p>
+            <span className="relative inline-flex items-center gap-2 mt-6 text-orange font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
+              {t.paywall.registerCta} <ArrowRight size={14} />
+            </span>
+          </Link>
+
+          {/* Entidad — teal-deep */}
+          <Link
+            to="/register/entity"
+            className="group rounded-3xl p-7 hover:-translate-y-1 hover:shadow-xl transition-all relative overflow-hidden text-white"
+            style={{ backgroundColor: "#163d37" }}
+            data-testid="paywall-entity-cta"
+          >
+            <span className="absolute -top-10 -right-10 w-40 h-40 rounded-full bg-orange/20"></span>
+            <span className="relative w-14 h-14 rounded-full bg-white text-teal-deep flex items-center justify-center shadow-lg">
+              <HeartHandshake size={22} />
+            </span>
+            <h2 className="relative font-display text-2xl text-white mt-5 leading-tight">{t.auth.asEntity}</h2>
+            <p className="relative text-white/80 mt-2 text-sm">{t.auth.asEntityDesc}</p>
             <span className="relative inline-flex items-center gap-2 mt-6 text-orange font-bold uppercase tracking-wider text-xs group-hover:gap-3 transition-all">
               {t.paywall.registerCta} <ArrowRight size={14} />
             </span>

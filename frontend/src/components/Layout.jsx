@@ -70,9 +70,11 @@ export const Navbar = () => {
       <TopBar />
       <div className="container-tight flex items-center justify-between py-3">
         <Logo className="h-20" />
-        <nav className="hidden lg:flex items-center gap-8">
+        <nav className="hidden lg:flex items-center gap-7">
           <NavLink to="/" end className={linkClass} data-testid="nav-home">{t.nav.home}</NavLink>
           <NavLink to="/directory" className={linkClass} data-testid="nav-directory">{t.nav.directory}</NavLink>
+          <NavLink to="/eventos" className={linkClass} data-testid="nav-events">{t.nav.events}</NavLink>
+          <NavLink to="/conocenos" className={linkClass} data-testid="nav-about">{t.nav.about}</NavLink>
         </nav>
         <div className="hidden lg:flex items-center gap-3">
           {user ? (
@@ -121,6 +123,8 @@ export const Navbar = () => {
           <div className="container-tight py-4 flex flex-col gap-3">
             <NavLink to="/" end className={linkClass} onClick={() => setOpen(false)}>{t.nav.home}</NavLink>
             <NavLink to="/directory" className={linkClass} onClick={() => setOpen(false)}>{t.nav.directory}</NavLink>
+            <NavLink to="/eventos" className={linkClass} onClick={() => setOpen(false)}>{t.nav.events}</NavLink>
+            <NavLink to="/conocenos" className={linkClass} onClick={() => setOpen(false)}>{t.nav.about}</NavLink>
             {user ? (
               <>
                 <Link to="/dashboard" className="btn-teal-outline w-fit" onClick={() => setOpen(false)}>{t.nav.dashboard}</Link>
@@ -160,6 +164,8 @@ export const Footer = () => {
           <ul className="space-y-2 text-sm">
             <li><Link to="/" className="hover:text-orange">{t.nav.home}</Link></li>
             <li><Link to="/directory" className="hover:text-orange">{t.nav.directory}</Link></li>
+            <li><Link to="/eventos" className="hover:text-orange">{t.nav.events}</Link></li>
+            <li><Link to="/conocenos" className="hover:text-orange">{t.nav.about}</Link></li>
           </ul>
         </div>
         <div>

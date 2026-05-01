@@ -600,6 +600,19 @@ async def list_events(current=Depends(get_current_user)):
     items = [public_event(d) async for d in cursor]
     return {"items": items, "total": len(items)}
 
+@api.get("/events/public")
+async def list_events_public():
+    """Public endpoint — used for landing /eventos page. Returns upcoming events only."""
+    today = datetime.now(timezone.utc).strftime("%Y-%m-%d")
+    cursor = db.events.find({"date": {"$gte": today}}, {"_id": 0}).sort("date", 1).limit(200)
+    items = [public_event(d) async for d in cursor]
+    # Enrich with entity logo for better cards
+    for it in items:
+        ent = await db.entities.find_one({"id": it["entity_id"]}, {"_id": 0, "logo_url": 1, "entity_type": 1})
+        it["entity_logo"] = (ent or {}).get("logo_url", "")
+        it["entity_type"] = (ent or {}).get("entity_type", "")
+    return {"items": items, "total": len(items)}
+
 @api.get("/events/mine")
 async def list_my_events(current=Depends(get_current_user)):
     if current.get("role") != "entity":

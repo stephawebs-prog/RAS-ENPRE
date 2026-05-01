@@ -2,7 +2,7 @@
 const dict = {
   en: {
     nav: {
-      home: "Home", directory: "Directory", about: "About", contact: "Contact",
+      home: "Home", directory: "Directory", events: "Events", about: "About us", contact: "Contact",
       login: "Log in", register: "Join the RED",
       dashboard: "My profile", admin: "Admin", logout: "Log out",
     },
@@ -208,6 +208,8 @@ const dict = {
     },
     events: {
       title: "Events",
+      publicTitle: "Upcoming community events",
+      publicSub: "Activities, workshops and volunteer opportunities from our community entities.",
       mine: "My events",
       upcoming: "Upcoming",
       empty: "No events yet.",
@@ -240,7 +242,7 @@ const dict = {
   },
   es: {
     nav: {
-      home: "Inicio", directory: "Directorio", about: "Nosotros", contact: "Contacto",
+      home: "Inicio", directory: "Directorio", events: "Eventos", about: "Conócenos", contact: "Contacto",
       login: "Iniciar sesión", register: "Únete a la RED",
       dashboard: "Mi perfil", admin: "Admin", logout: "Cerrar sesión",
     },
@@ -440,6 +442,8 @@ const dict = {
     },
     events: {
       title: "Eventos",
+      publicTitle: "Próximos eventos comunitarios",
+      publicSub: "Actividades, talleres y oportunidades de voluntariado de nuestras entidades comunitarias.",
       mine: "Mis eventos",
       upcoming: "Próximos",
       empty: "Aún no hay eventos.",

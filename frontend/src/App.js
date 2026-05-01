@@ -16,6 +16,8 @@ import Dashboard from "@/pages/Dashboard";
 import EntityDashboard from "@/pages/EntityDashboard";
 import ClientDashboard from "@/pages/ClientDashboard";
 import AdminPanel from "@/pages/AdminPanel";
+import Events from "@/pages/Events";
+import About from "@/pages/About";
 
 const Stand = ({ children }) => <PageShell>{children}</PageShell>;
 
@@ -29,8 +31,7 @@ const SmartDashboard = () => {
   return <ClientDashboard />;
 };
 
-const About = () => { React.useEffect(() => { window.location.href = "/#about"; }, []); return null; };
-const Contact = () => { React.useEffect(() => { window.location.href = "/#contact"; }, []); return null; };
+const ContactRedirect = () => { React.useEffect(() => { window.location.href = "/#contact"; }, []); return null; };
 
 function App() {
   return (
@@ -40,6 +41,10 @@ function App() {
           <Routes>
             <Route path="/" element={<Stand><Home /></Stand>} />
             <Route path="/directory" element={<Stand><Directory /></Stand>} />
+            <Route path="/eventos" element={<Stand><Events /></Stand>} />
+            <Route path="/events" element={<Stand><Events /></Stand>} />
+            <Route path="/conocenos" element={<Stand><About /></Stand>} />
+            <Route path="/about" element={<Stand><About /></Stand>} />
             <Route path="/entrepreneur/:id" element={<Stand><ProfileDetail /></Stand>} />
             <Route path="/login" element={<Stand><Login /></Stand>} />
             <Route path="/register" element={<Stand><RegisterChoice /></Stand>} />
@@ -49,8 +54,7 @@ function App() {
             <Route path="/dashboard" element={<Stand><SmartDashboard /></Stand>} />
             <Route path="/entity" element={<Stand><EntityDashboard /></Stand>} />
             <Route path="/admin" element={<Stand><AdminPanel /></Stand>} />
-            <Route path="/about" element={<Stand><About /></Stand>} />
-            <Route path="/contact" element={<Stand><Contact /></Stand>} />
+            <Route path="/contact" element={<Stand><ContactRedirect /></Stand>} />
           </Routes>
         </BrowserRouter>
       </AuthProvider>

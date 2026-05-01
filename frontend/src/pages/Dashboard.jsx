@@ -115,7 +115,10 @@ const Dashboard = () => {
                 <Field label={t.fields.linkedin}><input className="field-input" value={form.linkedin || ""} onChange={set("linkedin")} data-testid="d-linkedin" /></Field>
                 <Field label={t.fields.tiktok}><input className="field-input" value={form.tiktok || ""} onChange={set("tiktok")} data-testid="d-tiktok" /></Field>
                 <Field label={t.fields.youtube}><input className="field-input" value={form.youtube || ""} onChange={set("youtube")} data-testid="d-youtube" /></Field>
-                <Field label={t.fields.whatsapp}><input className="field-input" value={form.whatsapp || ""} onChange={set("whatsapp")} /></Field>
+                <Field label={t.fields.whatsapp}>
+                  <input className="field-input" placeholder="+1 432 555 0123" value={form.whatsapp || ""} onChange={set("whatsapp")} />
+                  <p className="text-xs text-teal-soft mt-1">{t.fields.whatsappHint}</p>
+                </Field>
                 <Field label={t.fields.twitter}><input className="field-input" value={form.twitter || ""} onChange={set("twitter")} /></Field>
               </div>
 

@@ -244,7 +244,8 @@ const Register = () => {
                   </div>
                   <div>
                     <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.whatsapp}</label>
-                    <input className="field-input mt-1" value={form.whatsapp} onChange={set("whatsapp")} />
+                    <input className="field-input mt-1" placeholder="+1 432 555 0123" value={form.whatsapp} onChange={set("whatsapp")} />
+                    <p className="text-xs text-teal-soft mt-1">{t.fields.whatsappHint}</p>
                   </div>
                   <div>
                     <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.twitter}</label>

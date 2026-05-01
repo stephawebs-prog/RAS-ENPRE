@@ -136,6 +136,7 @@ const dict = {
       logoUrl: "Logo URL", coverUrl: "Cover image URL",
       facebook: "Facebook", instagram: "Instagram", twitter: "X / Twitter", whatsapp: "WhatsApp",
       linkedin: "LinkedIn", tiktok: "TikTok", youtube: "YouTube",
+      whatsappHint: "Include country code",
       step3OptionalNote: "All fields in this step are optional — you can complete them later from your dashboard.",
       placeholders: {
         description: "What do you offer? Who do you serve? (10-2000 chars)",
@@ -305,6 +306,7 @@ const dict = {
       logoUrl: "URL del logo", coverUrl: "URL de imagen de portada",
       facebook: "Facebook", instagram: "Instagram", twitter: "X / Twitter", whatsapp: "WhatsApp",
       linkedin: "LinkedIn", tiktok: "TikTok", youtube: "YouTube",
+      whatsappHint: "Incluir indicativo del país",
       step3OptionalNote: "Todos los campos de este paso son opcionales — puedes completarlos después desde tu panel.",
       placeholders: {
         description: "¿Qué ofreces? ¿A quién atiendes? (10-2000 caracteres)",

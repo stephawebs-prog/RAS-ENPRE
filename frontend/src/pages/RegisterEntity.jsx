@@ -46,6 +46,7 @@ const RegisterEntity = () => {
   const submit = async (e) => {
     e.preventDefault();
     if (form.password !== form.password2) { setError(t.fields.passwordsDoNotMatch); return; }
+    if (!form.city || form.city.trim().length < 2) { setError("La ciudad es obligatoria."); return; }
     setError(""); setLoading(true);
     try {
       const payload = {
@@ -66,7 +67,12 @@ const RegisterEntity = () => {
       if (data.access_token) localStorage.setItem("red.token", data.access_token);
       if (setAuthFromRegister) setAuthFromRegister(data.user, null, data.entity);
       setDone(true);
-    } catch (err) { setError(formatApiError(err)); }
+    } catch (err) {
+      const detail = err?.response?.data?.detail;
+      if (detail) setError(formatApiError(err));
+      else if (err?.message?.toLowerCase().includes("network")) setError("Error de red: revisa tu conexión y que las imágenes no sean muy grandes. Se comprimen automáticamente, pero si sigue fallando intenta sin imágenes primero.");
+      else setError(formatApiError(err));
+    }
     finally { setLoading(false); }
   };
 
@@ -179,6 +185,7 @@ const RegisterEntity = () => {
                   labels={{ country: t.fields.country, state: t.fields.state, city: t.fields.city }}
                   value={{ country: form.country, state: form.state, city: form.city }}
                   onChange={(loc) => setForm({ ...form, ...loc })}
+                  required={false}
                 />
                 <div>
                   <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.address}</label>

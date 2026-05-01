@@ -50,7 +50,7 @@ const RegisterClient = () => {
       };
       const { data } = await api.post("/auth/register-client", payload);
       if (data.access_token) localStorage.setItem("red.token", data.access_token);
-      try { await login(form.email, form.password); } catch (_) {}
+      try { await login(form.email, form.password); } catch (err) { console.error("auto-login after register failed:", err); }
       setDone(true);
     } catch (err) { setError(formatApiError(err)); }
     finally { setLoading(false); }

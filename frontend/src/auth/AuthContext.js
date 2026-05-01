@@ -32,7 +32,9 @@ export const AuthProvider = ({ children }) => {
     try {
       const me = await api.get("/auth/me");
       setProfile(me.data.profile);
-    } catch (_) {}
+    } catch (err) {
+      console.error("failed to fetch profile after login:", err);
+    }
     return data;
   };
 
@@ -53,7 +55,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    try { await api.post("/auth/logout"); } catch (_) {}
+    try { await api.post("/auth/logout"); } catch (err) { console.error("logout request failed (clearing locally anyway):", err); }
     localStorage.removeItem("red.token");
     setUser(false); setProfile(null);
   };

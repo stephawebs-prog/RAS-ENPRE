@@ -9,7 +9,7 @@ const RegisterChoice = () => {
     <section className="min-h-[80vh] bg-cream py-16">
       <div className="container-tight max-w-4xl">
         <div className="text-center">
-          <p className="eyebrow text-orange">{t.nav.register}</p>
+          <p className="eyebrow text-orange">{t.auth.chooseEyebrow}</p>
           <h1 className="font-display text-4xl md:text-5xl text-teal-deep leading-tight mt-3" data-testid="choice-title">
             {t.auth.chooseTitle}
           </h1>

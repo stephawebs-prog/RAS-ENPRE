@@ -136,7 +136,12 @@ def set_auth_cookie(response: Response, token: str):
     )
 
 def clear_auth_cookie(response: Response):
-    response.delete_cookie("access_token", path="/")
+    # Must match the SameSite/Secure attributes used when setting the cookie,
+    # otherwise the browser keeps the old cookie and the user stays logged in.
+    response.set_cookie(
+        key="access_token", value="", httponly=True, secure=True,
+        samesite="none", max_age=0, expires=0, path="/",
+    )
 
 async def get_current_user(request: Request) -> dict:
     token = request.cookies.get("access_token")

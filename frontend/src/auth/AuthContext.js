@@ -55,9 +55,16 @@ export const AuthProvider = ({ children }) => {
   };
 
   const logout = async () => {
-    try { await api.post("/auth/logout"); } catch (err) { console.error("logout request failed (clearing locally anyway):", err); }
+    // Clear local state FIRST so UI reflects logout immediately,
+    // even if the network request fails or is slow.
     localStorage.removeItem("red.token");
-    setUser(false); setProfile(null);
+    setUser(false);
+    setProfile(null);
+    try {
+      await api.post("/auth/logout");
+    } catch (err) {
+      console.error("logout request failed (already cleared locally):", err);
+    }
   };
 
   const refreshProfile = async () => {

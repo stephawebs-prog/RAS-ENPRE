@@ -10,6 +10,8 @@ import uuid
 import csv
 import io
 import asyncio
+import hashlib
+import secrets
 import bcrypt
 import jwt
 from datetime import datetime, timezone, timedelta
@@ -21,7 +23,7 @@ from starlette.middleware.cors import CORSMiddleware
 from motor.motor_asyncio import AsyncIOMotorClient
 from pydantic import BaseModel, Field, EmailStr
 
-from email_service import send_welcome_entrepreneur, send_welcome_client
+from email_service import send_welcome_entrepreneur, send_welcome_client, send_password_reset
 
 # ---------------- Setup ----------------
 mongo_url = os.environ['MONGO_URL']
@@ -151,6 +153,13 @@ class EventUpdate(BaseModel):
 
 class VolunteerToggle(BaseModel):
     volunteer: bool
+
+class ForgotPasswordIn(BaseModel):
+    email: EmailStr
+
+class ResetPasswordIn(BaseModel):
+    token: str
+    password: str = Field(min_length=6)
 
 class LoginIn(BaseModel):
     email: EmailStr
@@ -666,6 +675,57 @@ async def toggle_volunteer(payload: VolunteerToggle, current=Depends(get_current
     if current.get("role") == "entrepreneur":
         await db.entrepreneurs.update_one({"user_id": current["id"]}, {"$set": {"volunteer": bool(payload.volunteer)}})
     return {"ok": True, "volunteer": bool(payload.volunteer)}
+
+# ---------------- Password reset ----------------
+def _hash_token(token: str) -> str:
+    return hashlib.sha256(token.encode()).hexdigest()
+
+@api.post("/auth/forgot-password")
+async def auth_forgot_password(payload: ForgotPasswordIn):
+    email = payload.email.lower().strip()
+    user = await db.users.find_one({"email": email}, {"_id": 0, "id": 1, "full_name": 1, "email": 1})
+    # ALWAYS return the same message (prevents account enumeration)
+    generic = {"ok": True, "message": "Si tu email está registrado, recibirás un enlace para restablecer la contraseña."}
+    if not user:
+        return generic
+
+    raw_token = secrets.token_urlsafe(48)
+    token_hash = _hash_token(raw_token)
+    expires = datetime.now(timezone.utc) + timedelta(hours=1)
+    await db.password_resets.insert_one({
+        "user_id": user["id"],
+        "email": email,
+        "token_hash": token_hash,
+        "expires_at": expires.isoformat(),
+        "used": False,
+        "created_at": now_iso(),
+    })
+    site = os.environ.get("SITE_URL", "").rstrip("/")
+    reset_url = f"{site}/reset-password?token={raw_token}" if site else f"/reset-password?token={raw_token}"
+    asyncio.create_task(send_password_reset(email, user.get("full_name", ""), reset_url))
+    return generic
+
+@api.post("/auth/reset-password")
+async def auth_reset_password(payload: ResetPasswordIn):
+    token_hash = _hash_token(payload.token)
+    record = await db.password_resets.find_one({"token_hash": token_hash, "used": False}, {"_id": 0})
+    if not record:
+        raise HTTPException(status_code=400, detail="Invalid or expired link")
+    try:
+        expires_at = datetime.fromisoformat(record["expires_at"])
+    except Exception:
+        raise HTTPException(status_code=400, detail="Invalid link")
+    if expires_at < datetime.now(timezone.utc):
+        raise HTTPException(status_code=400, detail="Link expired")
+    new_hash = hash_password(payload.password)
+    await db.users.update_one({"id": record["user_id"]}, {"$set": {"password_hash": new_hash}})
+    await db.password_resets.update_one({"token_hash": token_hash}, {"$set": {"used": True, "used_at": now_iso()}})
+    # Invalidate any other outstanding tokens for this user
+    await db.password_resets.update_many(
+        {"user_id": record["user_id"], "used": False, "token_hash": {"$ne": token_hash}},
+        {"$set": {"used": True, "used_at": now_iso()}},
+    )
+    return {"ok": True}
 
 # ---------------- Contact ----------------
 @api.post("/contact")

@@ -3,6 +3,7 @@ import "@/App.css";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { I18nProvider } from "@/i18n/I18nContext";
 import { AuthProvider, useAuth } from "@/auth/AuthContext";
+import useAnalytics from "@/hooks/useAnalytics";
 import { PageShell } from "@/components/Layout";
 import Home from "@/pages/Home";
 import Directory from "@/pages/Directory";
@@ -18,8 +19,12 @@ import ClientDashboard from "@/pages/ClientDashboard";
 import AdminPanel from "@/pages/AdminPanel";
 import Events from "@/pages/Events";
 import About from "@/pages/About";
+import ForgotPassword from "@/pages/ForgotPassword";
+import ResetPassword from "@/pages/ResetPassword";
 
 const Stand = ({ children }) => <PageShell>{children}</PageShell>;
+
+const AnalyticsTracker = () => { useAnalytics(); return null; };
 
 const SmartDashboard = () => {
   const { user } = useAuth();
@@ -38,6 +43,7 @@ function App() {
     <I18nProvider>
       <AuthProvider>
         <BrowserRouter>
+          <AnalyticsTracker />
           <Routes>
             <Route path="/" element={<Stand><Home /></Stand>} />
             <Route path="/directory" element={<Stand><Directory /></Stand>} />
@@ -51,6 +57,8 @@ function App() {
             <Route path="/register/client" element={<Stand><RegisterClient /></Stand>} />
             <Route path="/register/business" element={<Stand><Register /></Stand>} />
             <Route path="/register/entity" element={<Stand><RegisterEntity /></Stand>} />
+            <Route path="/forgot-password" element={<Stand><ForgotPassword /></Stand>} />
+            <Route path="/reset-password" element={<Stand><ResetPassword /></Stand>} />
             <Route path="/dashboard" element={<Stand><SmartDashboard /></Stand>} />
             <Route path="/entity" element={<Stand><EntityDashboard /></Stand>} />
             <Route path="/admin" element={<Stand><AdminPanel /></Stand>} />

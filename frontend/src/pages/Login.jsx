@@ -36,7 +36,12 @@ const Login = () => {
             <input type="email" required className="field-input mt-1" value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} data-testid="login-email" />
           </div>
           <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.password}</label>
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.password}</label>
+              <Link to="/forgot-password" className="text-xs font-bold text-orange hover:underline" data-testid="login-forgot-link">
+                {t.forgot.linkLabel}
+              </Link>
+            </div>
             <input type="password" required className="field-input mt-1" value={form.password} onChange={(e) => setForm({ ...form, password: e.target.value })} data-testid="login-password" />
           </div>
           {error && <p className="text-sm text-red-600" data-testid="login-error">{error}</p>}

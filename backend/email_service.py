@@ -98,3 +98,19 @@ async def send_welcome_client(email: str, full_name: str):
         "¡Bienvenido a la RED! · Welcome to the RED!",
         _layout("¡Bienvenido a la RED!", body, "Explorar el directorio", f"{site}/directory"),
     )
+
+
+async def send_password_reset(email: str, name: str, reset_url: str):
+    body = f"""
+        <p>Hola <strong>{name or email}</strong>,</p>
+        <p>Recibimos una solicitud para restablecer la contraseña de tu cuenta en la Red de Amor y Solidaridad. Haz clic en el botón de abajo para crear una nueva contraseña. Este enlace expira en <strong>1 hora</strong>.</p>
+        <p>Si no fuiste tú, puedes ignorar este mensaje — tu contraseña actual seguirá funcionando.</p>
+        <hr style="border:none;border-top:1px solid #EFF2F1;margin:24px 0;" />
+        <p>Hi <strong>{name or email}</strong>, we received a request to reset your password. Click the button below to choose a new one. This link expires in <strong>1 hour</strong>. If you didn't request this, you can safely ignore the email.</p>
+    """
+    return await send_email(
+        email,
+        "Restablecer tu contraseña · Reset your password",
+        _layout("Restablecer tu contraseña", body, "Crear nueva contraseña", reset_url),
+    )
+

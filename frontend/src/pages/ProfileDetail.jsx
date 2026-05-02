@@ -23,7 +23,7 @@ const ProfileDetail = () => {
     try {
       const { data } = await api.get(`/entrepreneurs/${id}/ratings`);
       setRatings(data);
-    } catch (e) { /* silent */ }
+    } catch (err) { console.error("Failed to load ratings:", err); }
   }, [id]);
 
   const loadMyRating = useCallback(async () => {
@@ -32,7 +32,7 @@ const ProfileDetail = () => {
       const { data } = await api.get(`/entrepreneurs/${id}/my-rating`);
       setMyStars(data.stars || 0);
       setMyComment(data.comment || "");
-    } catch (e) { /* silent */ }
+    } catch (err) { console.error("Failed to load my rating:", err); }
   }, [id, user]);
 
   useEffect(() => {

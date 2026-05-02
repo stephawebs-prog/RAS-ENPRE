@@ -763,6 +763,47 @@ async def delete_my_rating(eid: str, current=Depends(get_current_user)):
     return {"ok": True}
 
 # ---------------- Password reset ----------------
+@api.get("/entrepreneurs/me/stats")
+async def my_entrepreneur_stats(current=Depends(get_current_user)):
+    if current.get("role") != "entrepreneur":
+        raise HTTPException(status_code=403, detail="Only entrepreneurs")
+    ent = await db.entrepreneurs.find_one({"user_id": current["id"]}, {"_id": 0})
+    if not ent:
+        raise HTTPException(status_code=404, detail="Profile not found")
+    avg = float(ent.get("avg_rating", 0) or 0)
+    count = int(ent.get("ratings_count", 0) or 0)
+
+    # Compute rank: how many entrepreneurs have a strictly better position
+    # (featured > me) OR (same featured-status but higher avg)
+    # OR (same featured and avg, but more ratings)
+    total = await db.entrepreneurs.count_documents({})
+    ahead = await db.entrepreneurs.count_documents({
+        "$or": [
+            {"featured": True, "id": {"$ne": ent["id"]}} if not ent.get("featured") else {"_id": {"$exists": False}},
+            {"featured": bool(ent.get("featured", False)), "avg_rating": {"$gt": avg}},
+            {"featured": bool(ent.get("featured", False)), "avg_rating": avg, "ratings_count": {"$gt": count}},
+        ]
+    })
+    rank = ahead + 1
+
+    # Load last 20 ratings with comments
+    cursor = db.ratings.find(
+        {"entrepreneur_id": ent["id"]},
+        {"_id": 0, "user_id": 0, "user_email": 0}
+    ).sort("created_at", -1).limit(20)
+    reviews = await cursor.to_list(length=20)
+
+    return {
+        "avg_rating": avg,
+        "ratings_count": count,
+        "view_count": int(ent.get("view_count", 0) or 0),
+        "contact_click_count": int(ent.get("contact_click_count", 0) or 0),
+        "rank": rank,
+        "total": total,
+        "featured": bool(ent.get("featured", False)),
+        "reviews": reviews,
+    }
+
 def _hash_token(token: str) -> str:
     return hashlib.sha256(token.encode()).hexdigest()
 

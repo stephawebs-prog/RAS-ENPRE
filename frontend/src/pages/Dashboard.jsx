@@ -1,10 +1,11 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { ExternalLink, Save, LogOut, Eye, MousePointerClick } from "lucide-react";
+import { ExternalLink, Save, LogOut, Eye, MousePointerClick, Trophy, Star } from "lucide-react";
 import api, { formatApiError } from "@/lib/api";
 import { useI18n } from "@/i18n/I18nContext";
 import { useAuth } from "@/auth/AuthContext";
 import ImageUpload from "@/components/ImageUpload";
+import StarRating from "@/components/StarRating";
 
 const Dashboard = () => {
   const { t } = useI18n();
@@ -14,6 +15,7 @@ const Dashboard = () => {
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [stats, setStats] = useState(null);
   const categoryKeys = useMemo(() => Object.keys(t.categories), [t]);
 
   useEffect(() => {
@@ -23,6 +25,12 @@ const Dashboard = () => {
   useEffect(() => {
     if (profile && !form) setForm({ ...profile });
   }, [profile, form]);
+
+  useEffect(() => {
+    if (user && user.role === "entrepreneur") {
+      api.get("/entrepreneurs/me/stats").then(({ data }) => setStats(data)).catch(() => {});
+    }
+  }, [user]);
 
   if (!form) return <div className="container-tight py-24 text-center text-teal-soft">Loading…</div>;
 
@@ -75,6 +83,46 @@ const Dashboard = () => {
             </div>
 
             <form onSubmit={submit} id="profile" className="mt-8 space-y-5" data-testid="dashboard-form">
+              {/* Ranking + Average rating (big stat) */}
+              {stats && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4" data-testid="my-ranking-block">
+                  <div className="p-5 rounded-2xl border-2 border-orange/25 bg-gradient-to-br from-orange/10 to-orange/5">
+                    <div className="flex items-center gap-3">
+                      <span className="w-11 h-11 rounded-full bg-orange text-white flex items-center justify-center shadow-lg shadow-orange/30">
+                        <Trophy size={18} />
+                      </span>
+                      <div>
+                        <div className="text-xs text-teal-soft uppercase tracking-wider font-bold">{t.dashboard.myRanking}</div>
+                        <div className="font-display text-3xl text-teal-deep leading-none mt-1" data-testid="my-rank">
+                          #{stats.rank} <span className="text-base text-teal-soft font-normal">/ {stats.total}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-xs text-teal-soft mt-3">
+                      {stats.featured && <span className="inline-block text-orange font-bold mr-1">★</span>}
+                      {stats.featured ? t.dashboard.rankFeatured : t.dashboard.rankRegular}
+                    </p>
+                  </div>
+                  <div className="p-5 rounded-2xl border-2 border-teal/20 bg-teal/5">
+                    <div className="flex items-center gap-3">
+                      <span className="w-11 h-11 rounded-full bg-teal text-white flex items-center justify-center">
+                        <Star size={18} fill="currentColor" />
+                      </span>
+                      <div>
+                        <div className="text-xs text-teal-soft uppercase tracking-wider font-bold">{t.dashboard.myAvgRating}</div>
+                        <div className="font-display text-3xl text-teal-deep leading-none mt-1" data-testid="my-avg">
+                          {stats.avg_rating > 0 ? stats.avg_rating.toFixed(1) : "—"}
+                          <span className="text-base text-teal-soft font-normal"> ({stats.ratings_count})</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div className="mt-3">
+                      <StarRating value={stats.avg_rating} size={16} />
+                    </div>
+                  </div>
+                </div>
+              )}
+
               {/* My stats */}
               <div className="grid grid-cols-2 gap-4 p-5 bg-teal/5 rounded-2xl border-2 border-teal/10">
                 <div className="flex items-center gap-3">
@@ -166,6 +214,34 @@ const Dashboard = () => {
                 </button>
               </div>
             </form>
+
+            {/* Reviews received */}
+            {stats && (
+              <div className="mt-10 pt-8 border-t border-gray-100" data-testid="my-reviews-block">
+                <p className="eyebrow text-orange">{t.dashboard.reviewsEyebrow}</p>
+                <h2 className="font-display text-3xl text-teal-deep mt-1">
+                  {stats.ratings_count > 0
+                    ? <>{stats.ratings_count} {stats.ratings_count === 1 ? t.ratings.reviewSingular : t.ratings.reviewPlural}</>
+                    : t.dashboard.reviewsEmptyTitle}
+                </h2>
+                {stats.ratings_count === 0 ? (
+                  <p className="text-teal-soft text-sm mt-2">{t.dashboard.reviewsEmptyBody}</p>
+                ) : (
+                  <div className="mt-6 space-y-3">
+                    {stats.reviews.map((r) => (
+                      <div key={r.id} className="bg-cream rounded-2xl border border-gray-200 p-5">
+                        <div className="flex items-center gap-3 flex-wrap">
+                          <StarRating value={r.stars} size={14} />
+                          <span className="text-sm font-bold text-teal-deep">{r.user_name || t.ratings.anonymous}</span>
+                          <span className="text-xs text-teal-soft ml-auto">{(r.created_at || "").slice(0, 10)}</span>
+                        </div>
+                        {r.comment && <p className="text-sm text-teal-soft mt-2 leading-relaxed italic">"{r.comment}"</p>}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </main>
       </div>

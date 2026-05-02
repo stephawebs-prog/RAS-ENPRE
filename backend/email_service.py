@@ -58,7 +58,7 @@ def _layout(title: str, body_html: str, cta_label: str = "", cta_url: str = "") 
           {cta}
         </td></tr>
         <tr><td style="background:#F8FAFA;padding:18px 32px;font-size:12px;color:#7E8E8B;border-top:1px solid #EFF2F1;">
-          1104 S Crane Ave, Odessa, TX · +1 (432) 258-4444 · info@lovesolidarity.com
+          1104 S Crane Ave, Odessa, TX · +1 (432) 338-2869 · info@lovesolidarity.com
         </td></tr>
       </table>
     </td></tr>

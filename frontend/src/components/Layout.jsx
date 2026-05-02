@@ -34,8 +34,8 @@ const TopBar = () => {
           <a href="mailto:info@lovesolidarity.com" className="hidden md:inline-flex items-center gap-2 hover:text-orange transition-colors">
             <Mail size={14} /> info@lovesolidarity.com
           </a>
-          <a href="tel:+14322584444" className="hidden md:inline-flex items-center gap-2 hover:text-orange transition-colors">
-            <Phone size={14} /> +1 (432) 258-4444
+          <a href="tel:+14323382869" className="hidden md:inline-flex items-center gap-2 hover:text-orange transition-colors">
+            <Phone size={14} /> +1 (432) 338-2869
           </a>
           <button
             onClick={toggle}
@@ -45,9 +45,9 @@ const TopBar = () => {
             <Globe size={12} /> {lang === "es" ? "EN" : "ES"}
           </button>
           <div className="flex items-center gap-2">
-            <a href="https://www.facebook.com/profile.php?id=61585047449986" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-orange"><Facebook size={14} /></a>
-            <a href="https://www.instagram.com/love_andsolidarity/" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-orange"><Instagram size={14} /></a>
-            <a href="https://wa.me/14322584444" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-orange"><MessageCircle size={14} /></a>
+            <a href="https://www.facebook.com/redrasapp" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-orange"><Facebook size={14} /></a>
+            <a href="https://www.instagram.com/redrasapp/" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-orange"><Instagram size={14} /></a>
+            <a href="https://wa.me/14323382869" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-orange"><MessageCircle size={14} /></a>
           </div>
         </div>
       </div>
@@ -154,9 +154,9 @@ export const Footer = () => {
             {t.footer.tag}
           </p>
           <div className="flex items-center gap-3 mt-5 text-white/70">
-            <a href="https://www.facebook.com/profile.php?id=61585047449986" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-orange"><Facebook size={18} /></a>
-            <a href="https://www.instagram.com/love_andsolidarity/" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-orange"><Instagram size={18} /></a>
-            <a href="https://wa.me/14322584444" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-orange"><MessageCircle size={18} /></a>
+            <a href="https://www.facebook.com/redrasapp" target="_blank" rel="noreferrer" aria-label="Facebook" className="hover:text-orange"><Facebook size={18} /></a>
+            <a href="https://www.instagram.com/redrasapp/" target="_blank" rel="noreferrer" aria-label="Instagram" className="hover:text-orange"><Instagram size={18} /></a>
+            <a href="https://wa.me/14323382869" target="_blank" rel="noreferrer" aria-label="WhatsApp" className="hover:text-orange"><MessageCircle size={18} /></a>
           </div>
         </div>
         <div>
@@ -178,7 +178,7 @@ export const Footer = () => {
           <h4 className="eyebrow text-orange mb-4">{t.footer.contactNow}</h4>
           <ul className="space-y-2 text-sm">
             <li>1104 S Crane Ave, Odessa, TX</li>
-            <li>+1 (432) 258-4444</li>
+            <li>+1 (432) 338-2869</li>
             <li>info@lovesolidarity.com</li>
           </ul>
         </div>

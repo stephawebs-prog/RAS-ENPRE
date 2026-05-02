@@ -211,6 +211,7 @@ const ContactSection = () => {
             <div>
               <h4 className="eyebrow text-teal">{t.contact.contacts}</h4>
               <p className="mt-1 text-teal-soft">info@lovesolidarity.com</p>
+              <p className="mt-1 text-teal-soft">+1 (432) 338-2869</p>
             </div>
           </div>
         </div>

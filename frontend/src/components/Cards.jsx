@@ -2,6 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import { MapPin, ArrowRight, Tag, Star } from "lucide-react";
 import { useI18n } from "@/i18n/I18nContext";
+import StarRating from "@/components/StarRating";
 
 const FALLBACK_LOGO = "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?w=400";
 
@@ -45,6 +46,11 @@ export const BusinessCard = ({ biz }) => {
           </div>
         </div>
         <p className="text-sm text-teal-soft line-clamp-3 leading-relaxed">{biz.description}</p>
+        {(biz.ratings_count > 0 || biz.avg_rating > 0) && (
+          <div className="pt-1" data-testid={`biz-rating-${biz.id}`}>
+            <StarRating value={biz.avg_rating || 0} count={biz.ratings_count || 0} showValue size={14} />
+          </div>
+        )}
         <div className="mt-auto pt-2 inline-flex items-center gap-2 text-orange font-bold text-sm uppercase tracking-wider">
           {t.directory.view} <ArrowRight size={14} className="group-hover:translate-x-1 transition-transform" />
         </div>

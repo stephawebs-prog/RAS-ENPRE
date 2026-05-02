@@ -154,6 +154,10 @@ class EventUpdate(BaseModel):
 class VolunteerToggle(BaseModel):
     volunteer: bool
 
+class RatingIn(BaseModel):
+    stars: int = Field(ge=1, le=5)
+    comment: Optional[str] = Field(default="", max_length=500)
+
 class ForgotPasswordIn(BaseModel):
     email: EmailStr
 
@@ -259,8 +263,18 @@ def public_entrepreneur(doc: dict) -> dict:
             "logo_url", "cover_url", "facebook", "instagram", "twitter", "whatsapp",
             "linkedin", "tiktok", "youtube",
             "created_at", "updated_at", "featured", "view_count", "contact_click_count",
-            "volunteer"]
-    return {k: doc.get(k, 0 if k.endswith("_count") else (False if k in ("featured", "volunteer") else "")) for k in keep}
+            "volunteer", "avg_rating", "ratings_count"]
+    out = {}
+    for k in keep:
+        if k.endswith("_count"):
+            out[k] = doc.get(k, 0)
+        elif k in ("featured", "volunteer"):
+            out[k] = bool(doc.get(k, False))
+        elif k == "avg_rating":
+            out[k] = float(doc.get(k, 0) or 0)
+        else:
+            out[k] = doc.get(k, "")
+    return out
 
 def public_user(doc: dict) -> dict:
     return {
@@ -444,14 +458,14 @@ async def list_entrepreneurs(
             {"city": {"$regex": q, "$options": "i"}},
         ]
     total = await db.entrepreneurs.count_documents(filt)
-    cursor = db.entrepreneurs.find(filt, {"_id": 0}).sort([("featured", -1), ("created_at", -1)]).skip(skip).limit(limit)
+    cursor = db.entrepreneurs.find(filt, {"_id": 0}).sort([("featured", -1), ("avg_rating", -1), ("ratings_count", -1), ("created_at", -1)]).skip(skip).limit(limit)
     items = [public_entrepreneur(d) async for d in cursor]
     return {"total": total, "items": items}
 
 @api.get("/entrepreneurs/preview")
 async def preview_entrepreneurs(limit: int = Query(3, ge=1, le=6)):
     """Public teaser preview (without auth) — used to show a few cards on the landing/wall."""
-    cursor = db.entrepreneurs.find({}, {"_id": 0}).sort([("featured", -1), ("created_at", -1)]).limit(limit)
+    cursor = db.entrepreneurs.find({}, {"_id": 0}).sort([("featured", -1), ("avg_rating", -1), ("ratings_count", -1), ("created_at", -1)]).limit(limit)
     items = [public_entrepreneur(d) async for d in cursor]
     total = await db.entrepreneurs.count_documents({})
     return {"total": total, "items": items}
@@ -675,6 +689,78 @@ async def toggle_volunteer(payload: VolunteerToggle, current=Depends(get_current
     if current.get("role") == "entrepreneur":
         await db.entrepreneurs.update_one({"user_id": current["id"]}, {"$set": {"volunteer": bool(payload.volunteer)}})
     return {"ok": True, "volunteer": bool(payload.volunteer)}
+
+# ---------------- Ratings ----------------
+async def _recompute_entrepreneur_rating(entrepreneur_id: str):
+    """Aggregate ratings for an entrepreneur and persist avg + count on doc."""
+    pipeline = [
+        {"$match": {"entrepreneur_id": entrepreneur_id}},
+        {"$group": {"_id": "$entrepreneur_id", "avg": {"$avg": "$stars"}, "count": {"$sum": 1}}},
+    ]
+    result = await db.ratings.aggregate(pipeline).to_list(length=1)
+    avg = round(float(result[0]["avg"]), 2) if result else 0.0
+    count = int(result[0]["count"]) if result else 0
+    await db.entrepreneurs.update_one(
+        {"id": entrepreneur_id},
+        {"$set": {"avg_rating": avg, "ratings_count": count, "updated_at": now_iso()}},
+    )
+    return avg, count
+
+@api.post("/entrepreneurs/{eid}/rate")
+async def rate_entrepreneur(eid: str, payload: RatingIn, current=Depends(get_current_user)):
+    # Prevent entrepreneurs from rating themselves
+    ent = await db.entrepreneurs.find_one({"id": eid}, {"_id": 0, "id": 1, "user_id": 1})
+    if not ent:
+        raise HTTPException(status_code=404, detail="Entrepreneur not found")
+    if ent.get("user_id") == current["id"]:
+        raise HTTPException(status_code=400, detail="No puedes calificar tu propio perfil")
+    # Upsert — one rating per user per entrepreneur
+    doc = {
+        "entrepreneur_id": eid,
+        "user_id": current["id"],
+        "user_email": current.get("email", ""),
+        "user_name": current.get("full_name", "") or current.get("email", ""),
+        "stars": int(payload.stars),
+        "comment": (payload.comment or "").strip(),
+        "updated_at": now_iso(),
+    }
+    existing = await db.ratings.find_one({"entrepreneur_id": eid, "user_id": current["id"]}, {"_id": 0, "id": 1})
+    if existing:
+        await db.ratings.update_one(
+            {"entrepreneur_id": eid, "user_id": current["id"]},
+            {"$set": doc},
+        )
+    else:
+        doc["id"] = str(uuid.uuid4())
+        doc["created_at"] = now_iso()
+        await db.ratings.insert_one(doc)
+    avg, count = await _recompute_entrepreneur_rating(eid)
+    return {"ok": True, "avg_rating": avg, "ratings_count": count}
+
+@api.get("/entrepreneurs/{eid}/ratings")
+async def list_ratings(eid: str):
+    cursor = db.ratings.find({"entrepreneur_id": eid}, {"_id": 0, "user_id": 0, "user_email": 0}).sort("created_at", -1).limit(100)
+    items = await cursor.to_list(length=100)
+    ent = await db.entrepreneurs.find_one({"id": eid}, {"_id": 0, "avg_rating": 1, "ratings_count": 1})
+    return {
+        "items": items,
+        "total": len(items),
+        "avg_rating": float((ent or {}).get("avg_rating", 0) or 0),
+        "ratings_count": int((ent or {}).get("ratings_count", 0) or 0),
+    }
+
+@api.get("/entrepreneurs/{eid}/my-rating")
+async def my_rating(eid: str, current=Depends(get_current_user)):
+    rec = await db.ratings.find_one({"entrepreneur_id": eid, "user_id": current["id"]}, {"_id": 0, "user_id": 0, "user_email": 0})
+    return rec or {"stars": 0, "comment": ""}
+
+@api.delete("/entrepreneurs/{eid}/rate")
+async def delete_my_rating(eid: str, current=Depends(get_current_user)):
+    res = await db.ratings.delete_one({"entrepreneur_id": eid, "user_id": current["id"]})
+    if res.deleted_count == 0:
+        raise HTTPException(status_code=404, detail="No rating found")
+    await _recompute_entrepreneur_rating(eid)
+    return {"ok": True}
 
 # ---------------- Password reset ----------------
 def _hash_token(token: str) -> str:
@@ -989,6 +1075,7 @@ async def on_startup():
     await db.entities.create_index("user_id")
     await db.events.create_index("entity_id")
     await db.events.create_index("date")
+    await db.ratings.create_index([("entrepreneur_id", 1), ("user_id", 1)], unique=True)
     admin_email = os.environ.get("ADMIN_EMAIL", "admin@redsolidaridad.com").lower()
     admin_password = os.environ.get("ADMIN_PASSWORD", "Admin@RED2026")
     existing = await db.users.find_one({"email": admin_email})
@@ -1054,7 +1141,7 @@ async def seed_sample_data():
          "category": "automotive", "phone": "+1 432 555 0202", "city": "Odessa", "state": "TX",
          "description": "Mecánica honesta para tu auto. Diagnóstico gratis, precio justo, atención bilingüe.",
          "logo_url": "https://images.unsplash.com/photo-1486006920555-c77dcf18193c?w=400",
-         "cover_url": "https://images.unsplash.com/photo-1599256871679-d7e7f9c0e2c1?w=1200"},
+         "cover_url": "https://images.unsplash.com/photo-1486262715619-67b85e0b08d3?w=1200"},
     ]
     for s in samples:
         uid = str(uuid.uuid4())

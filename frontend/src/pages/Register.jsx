@@ -123,19 +123,22 @@ const Register = () => {
           <div className="mt-8"><StepHeader /></div>
 
           <form onSubmit={handleFormSubmit} className="space-y-5" data-testid="register-form" noValidate>
+            <p className="text-sm text-teal-soft italic">
+              <span className="text-red-500 font-bold">*</span> {t.fields.requiredNote}
+            </p>
             {step === 0 && (
               <>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.email}</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.email} <span className="text-red-500">*</span></label>
                   <input type="email" required className="field-input mt-1" value={form.email} onChange={set("email")} data-testid="reg-email" />
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.createPassword}</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.createPassword} <span className="text-red-500">*</span></label>
                   <input type="password" required minLength={6} className="field-input mt-1" value={form.password} onChange={set("password")} data-testid="reg-password" />
                   <p className="text-xs text-teal-soft mt-1">min 6 characters</p>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.confirmPassword}</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.confirmPassword} <span className="text-red-500">*</span></label>
                   <input type="password" required minLength={6} className="field-input mt-1" value={form.password2} onChange={set("password2")} data-testid="reg-password2" />
                   {form.password2 && form.password !== form.password2 && (
                     <p className="text-xs text-red-600 mt-1">{t.fields.passwordsDoNotMatch}</p>
@@ -156,33 +159,37 @@ const Register = () => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.businessName}</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.businessName} <span className="text-red-500">*</span></label>
                     <input required className="field-input mt-1" value={form.business_name} onChange={set("business_name")} data-testid="reg-business-name" />
                   </div>
                   <div>
-                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.ownerName}</label>
+                    <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.ownerName} <span className="text-red-500">*</span></label>
                     <input required className="field-input mt-1" value={form.owner_name} onChange={set("owner_name")} data-testid="reg-owner-name" />
                   </div>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.category}</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.category} <span className="text-red-500">*</span></label>
                   <select required className="field-input mt-1" value={form.category} onChange={set("category")} data-testid="reg-category">
                     {categoryKeys.map((k) => <option key={k} value={k}>{t.categories[k]}</option>)}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.description}</label>
+                  <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.description} <span className="text-red-500">*</span></label>
                   <textarea required rows={4} minLength={10} className="field-input mt-1" placeholder={t.fields.placeholders.description} value={form.description} onChange={set("description")} data-testid="reg-description" />
                 </div>
 
                 <PhoneInput
-                  label={t.fields.phone}
+                  label={<>{t.fields.phone} <span className="text-red-500">*</span></>}
                   value={{ country: form.phoneCountry, dialCode: form.phoneDialCode, number: form.phoneNumber }}
                   onChange={(v) => setForm({ ...form, phoneCountry: v.country, phoneDialCode: v.dialCode, phoneNumber: v.number })}
                 />
 
                 <LocationSelect
-                  labels={{ country: t.fields.country, state: t.fields.state, city: t.fields.city }}
+                  labels={{
+                    country: t.fields.country,
+                    state: t.fields.state,
+                    city: <>{t.fields.city} <span className="text-red-500">*</span></>,
+                  }}
                   value={{ country: form.country, state: form.state, city: form.city }}
                   onChange={(loc) => setForm({ ...form, ...loc })}
                 />

@@ -156,6 +156,7 @@ const dict = {
       linkedin: "LinkedIn", tiktok: "TikTok", youtube: "YouTube",
       whatsappHint: "Include country code",
       step3OptionalNote: "All fields in this step are optional — you can complete them later from your dashboard.",
+      requiredNote: "Fields marked with an asterisk are required.",
       placeholders: {
         description: "What do you offer? Who do you serve? (10-2000 chars)",
         logoUrl: "https://… (paste an image URL)",
@@ -437,6 +438,7 @@ const dict = {
       linkedin: "LinkedIn", tiktok: "TikTok", youtube: "YouTube",
       whatsappHint: "Incluir indicativo del país",
       step3OptionalNote: "Todos los campos de este paso son opcionales — puedes completarlos después desde tu panel.",
+      requiredNote: "Los campos marcados con asterisco son obligatorios.",
       placeholders: {
         description: "¿Qué ofreces? ¿A quién atiendes? (10-2000 caracteres)",
         logoUrl: "https://… (pega una URL de imagen)",

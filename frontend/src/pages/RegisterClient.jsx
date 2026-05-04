@@ -84,24 +84,27 @@ const RegisterClient = () => {
           <p className="text-teal-soft mt-2">{t.auth.clientSub}</p>
 
           <form onSubmit={submit} className="mt-8 space-y-5" data-testid="client-form">
+            <p className="text-sm text-teal-soft italic">
+              <span className="text-red-500 font-bold">*</span> {t.fields.requiredNote}
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.fullName}</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.fullName} <span className="text-red-500">*</span></label>
                 <input required className="field-input mt-1" value={form.full_name} onChange={set("full_name")} data-testid="client-name" />
               </div>
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.email}</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.auth.email} <span className="text-red-500">*</span></label>
                 <input type="email" required className="field-input mt-1" value={form.email} onChange={set("email")} data-testid="client-email" />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.createPassword}</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.createPassword} <span className="text-red-500">*</span></label>
                 <input type="password" required minLength={6} className="field-input mt-1" value={form.password} onChange={set("password")} data-testid="client-password" />
               </div>
               <div>
-                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.confirmPassword}</label>
+                <label className="text-xs font-bold uppercase tracking-wider text-teal">{t.fields.confirmPassword} <span className="text-red-500">*</span></label>
                 <input type="password" required minLength={6} className="field-input mt-1" value={form.password2} onChange={set("password2")} data-testid="client-password2" />
                 {form.password2 && form.password !== form.password2 && (
                   <p className="text-xs text-red-600 mt-1">{t.fields.passwordsDoNotMatch}</p>
@@ -110,13 +113,17 @@ const RegisterClient = () => {
             </div>
 
             <PhoneInput
-              label={t.fields.phone}
+              label={<>{t.fields.phone} <span className="text-red-500">*</span></>}
               value={{ dialCode: form.phoneDialCode, number: form.phoneNumber }}
               onChange={(v) => setForm({ ...form, phoneDialCode: v.dialCode, phoneNumber: v.number })}
             />
 
             <LocationSelect
-              labels={{ country: t.fields.country, state: t.fields.state, city: t.fields.city }}
+              labels={{
+                country: t.fields.country,
+                state: t.fields.state,
+                city: <>{t.fields.city} <span className="text-red-500">*</span></>,
+              }}
               value={{ country: form.country, state: form.state, city: form.city }}
               onChange={(loc) => setForm({ ...form, ...loc })}
             />

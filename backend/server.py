@@ -630,11 +630,20 @@ async def list_events_public():
     events are in the past."""
     cursor = db.events.find({}, {"_id": 0}).sort("date", 1).limit(500)
     items = [public_event(d) async for d in cursor]
-    # Enrich with entity logo for better cards
-    for it in items:
-        ent = await db.entities.find_one({"id": it["entity_id"]}, {"_id": 0, "logo_url": 1, "entity_type": 1})
-        it["entity_logo"] = (ent or {}).get("logo_url", "")
-        it["entity_type"] = (ent or {}).get("entity_type", "")
+    # Enrich with entity logo for better cards (batch — no N+1)
+    entity_ids = list({it["entity_id"] for it in items if it.get("entity_id")})
+    if entity_ids:
+        entities = {}
+        async for e in db.entities.find({"id": {"$in": entity_ids}}, {"_id": 0, "id": 1, "logo_url": 1, "entity_type": 1}):
+            entities[e["id"]] = e
+        for it in items:
+            ent = entities.get(it["entity_id"], {})
+            it["entity_logo"] = ent.get("logo_url", "")
+            it["entity_type"] = ent.get("entity_type", "")
+    else:
+        for it in items:
+            it["entity_logo"] = ""
+            it["entity_type"] = ""
     return {"items": items, "total": len(items)}
 
 @api.get("/events/mine")
@@ -959,10 +968,16 @@ async def admin_list_entities(q: Optional[str] = None, _=Depends(require_admin))
         ]
     cursor = db.entities.find(filt, {"_id": 0}).sort("created_at", -1).limit(500)
     items = [public_entity(d) async for d in cursor]
+    # Batch-enrich with email + source (avoids N+1)
+    user_ids = list({item["user_id"] for item in items if item.get("user_id")})
+    users_map = {}
+    if user_ids:
+        async for u in db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "email": 1, "source": 1}):
+            users_map[u["id"]] = u
     for item in items:
-        u = await db.users.find_one({"id": item["user_id"]}, {"_id": 0, "email": 1, "source": 1})
-        item["email"] = (u or {}).get("email", "")
-        item["source"] = (u or {}).get("source", "")
+        u = users_map.get(item["user_id"], {})
+        item["email"] = u.get("email", "")
+        item["source"] = u.get("source", "")
     return {"items": items, "total": len(items)}
 
 @api.delete("/admin/entities/{eid}")
@@ -994,12 +1009,17 @@ async def admin_list_entrepreneurs(q: Optional[str] = None, _=Depends(require_ad
         ]
     cursor = db.entrepreneurs.find(filt, {"_id": 0}).sort("created_at", -1).limit(500)
     items = [public_entrepreneur(d) async for d in cursor]
-    # enrich with email + source of owner
+    # Batch-enrich with email + source + volunteer (avoids N+1)
+    user_ids = list({item["user_id"] for item in items if item.get("user_id")})
+    users_map = {}
+    if user_ids:
+        async for u in db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "email": 1, "source": 1, "volunteer": 1}):
+            users_map[u["id"]] = u
     for item in items:
-        u = await db.users.find_one({"id": item["user_id"]}, {"_id": 0, "email": 1, "source": 1, "volunteer": 1})
-        item["email"] = (u or {}).get("email", "")
-        item["source"] = (u or {}).get("source", "")
-        item["volunteer"] = bool((u or {}).get("volunteer", False))
+        u = users_map.get(item["user_id"], {})
+        item["email"] = u.get("email", "")
+        item["source"] = u.get("source", "")
+        item["volunteer"] = bool(u.get("volunteer", False))
     return {"items": items, "total": len(items)}
 
 @api.patch("/admin/entrepreneurs/{eid}")
@@ -1083,12 +1103,17 @@ def _csv_response(rows: List[dict], fieldnames: List[str], filename: str):
 @api.get("/admin/export/entrepreneurs.csv")
 async def admin_export_entrepreneurs(_=Depends(require_admin)):
     cursor = db.entrepreneurs.find({}, {"_id": 0}).sort("created_at", -1)
-    items = []
-    async for d in cursor:
-        u = await db.users.find_one({"id": d.get("user_id")}, {"_id": 0, "email": 1, "source": 1})
-        d["email"] = (u or {}).get("email", "")
-        d["source"] = (u or {}).get("source", "")
-        items.append(d)
+    items = [d async for d in cursor]
+    # Batch-load users (avoids N+1 on large CSV exports)
+    user_ids = list({d.get("user_id") for d in items if d.get("user_id")})
+    users_map = {}
+    if user_ids:
+        async for u in db.users.find({"id": {"$in": user_ids}}, {"_id": 0, "id": 1, "email": 1, "source": 1}):
+            users_map[u["id"]] = u
+    for d in items:
+        u = users_map.get(d.get("user_id"), {})
+        d["email"] = u.get("email", "")
+        d["source"] = u.get("source", "")
     fields = ["business_name", "owner_name", "email", "category", "phone", "city", "state",
               "country", "website", "instagram", "facebook", "featured", "source", "created_at"]
     return _csv_response(items, fields, "entrepreneurs.csv")
